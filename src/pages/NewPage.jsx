@@ -1,4 +1,4 @@
-import { Checkbox, Form, Input, Calendar,  } from 'antd';
+import { Checkbox, Form, Input, Calendar, Pagination } from 'antd';
 
 function NewPage(){
 
@@ -45,6 +45,8 @@ function NewPage(){
                 </Form.Item>    
             </Form>      
             <Calendar onPanelChange={onPanelChange} />
+
+            <Pagination align="center" defaultCurrent={1} total={50} />
 
             <button type="button" class="text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Default</button>
         </>
