@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router'
 import { Typography, Row, Col, Empty, Button, Tag, Flex } from 'antd'
 import { PlusOutlined, AppstoreOutlined } from '@ant-design/icons'
+import { DownloadOutlined } from '@ant-design/icons';
 import ProductCard from '../components/ProductCard.jsx'
 
 const { Title, Paragraph } = Typography
@@ -22,6 +23,12 @@ function ProductsPage({ products }) {
             Each card is rendered with the ProductCard component. React repeats it with distinct product props.
           </Paragraph>
         </div>
+        <Button
+          type="primary"
+          icon={<DownloadOutlined />}
+        >
+          Download
+        </Button>   
         <Button
           type="primary"
           icon={<PlusOutlined />}

@@ -7,6 +7,7 @@ import {
   ShopOutlined,
   TeamOutlined,
   UserOutlined,
+  PlusSquareFilled
 } from '@ant-design/icons'
 
 function Navigation({ isCollapsed }) {
@@ -28,6 +29,11 @@ function Navigation({ isCollapsed }) {
       key: '/add-product',
       icon: <PlusCircleOutlined />,
       label: 'Add product',
+    },
+    {
+      key: '/NewPage',
+      icon: <PlusSquareFilled />,
+      label: 'New Navigation'
     },
     {
       key: '/users',
