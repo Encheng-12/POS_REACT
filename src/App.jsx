@@ -11,8 +11,8 @@ import TeamLayout from './pages/TeamLayout.jsx'
 import UserPage from './pages/UserPage.jsx'
 import MainLayout from './layouts/MainLayout.jsx'
 import ShopLayout from './layouts/ShopLayout.jsx'
-import NewPage from './pages/OrderPage.jsx'
-import  Categories  from './pages/CategoryPage.jsx'
+import OrderPage from './pages/OrderPage.jsx'
+import CategoryPage from './pages/CategoryPage.jsx'
 
 function App() {
   // State is data that can change while the app is open.
@@ -33,7 +33,7 @@ function App() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage products={products} />} />
         <Route path="/products" element={<ProductsPage products={products} />} />
-        <Route path="/categories" element={<CategoryPage categories={categories} />} />
+        <Route path="/categories" element={<CategoryPage />} />
         <Route path="/add-product" element={<AddProductPage onAddProduct={addProduct} />} />
         <Route path="/order" element={<OrderPage/>}/>
         <Route path="/users" element={<UserPage />} />
