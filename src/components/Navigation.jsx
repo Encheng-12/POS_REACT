@@ -1,6 +1,6 @@
-import { useLocation, useNavigate } from 'react-router'
-import { Menu } from 'antd'
-import POSlogo from '/src/assets/image/pos.png'
+import { useLocation, useNavigate } from "react-router";
+import { Menu } from "antd";
+import POSlogo from "/src/assets/image/pos.png";
 import {
   ProductFilled,
   HomeOutlined,
@@ -9,94 +9,109 @@ import {
   TeamOutlined,
   UserOutlined,
   ShoppingCartOutlined,
-  TagsFilled
-} from '@ant-design/icons'
+  TagsFilled,
+} from "@ant-design/icons";
 
 function Navigation({ isCollapsed }) {
-  const location = useLocation()
-  const navigate = useNavigate()
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const menuItems = [
     {
-      key: '/',
+      key: "/",
       icon: <HomeOutlined />,
-      label: 'Overview',
+      label: "Overview",
     },
     {
-      key: '/products',
+      key: "/products",
       icon: <ProductFilled />,
-      label: 'Products',
+      label: "Products",
     },
     {
-      key: '/categories',
-      icon: <TagsFilled/>,
-      label: 'Categories',
+      key: "/categories",
+      icon: <TagsFilled />,
+      label: "Categories",
     },
     {
-      key: '/add-product',
+      key: "/add-product",
       icon: <PlusCircleOutlined />,
-      label: 'Add product',
+      label: "Add product",
     },
     {
-      key: '/orders',
+      key: '/order',
       icon: <ShoppingCartOutlined />,
-      label: 'Order'
+      label: "Payment",
     },
     {
-      key: '/users',
+      key: "/users",
       icon: <UserOutlined />,
-      label: 'Users',
+      label: "Users",
     },
     {
-      key: '/shop',
+      key: "/stock-movement",
       icon: <ShopOutlined />,
-      label: 'Shop',
+      label: "Stock Movement",
     },
     {
-      key: 'team-group',
+      key: "/shop",
+      icon: <ShopOutlined />,
+      label: "Shop",
+    },
+    {
+      key: "team-group",
       icon: <TeamOutlined />,
-      label: 'Team',
+      label: "Team",
       children: [
         {
-          key: '/team/team-1',
+          key: "/team/team-1",
           icon: <UserOutlined />,
-          label: 'Team 1',
+          label: "Team 1",
         },
         {
-          key: '/team/team-2',
+          key: "/team/team-2",
           icon: <UserOutlined />,
-          label: 'Team 2',
+          label: "Team 2",
         },
       ],
     },
-  ]
+  ];
 
   // Find active key based on current pathname
-  const activeKey = location.pathname
+  const activeKey = location.pathname;
 
   const handleMenuClick = ({ key }) => {
-    if (key.startsWith('/')) {
-      navigate(key)
+    if (key.startsWith("/")) {
+      navigate(key);
     }
-  }
+  };
 
   return (
     <div className="nav-container">
-      <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-        <img src={POSlogo} alt="" width='50px' height='50px' style={{ borderRadius: '10px' }}/>
+      <div
+        className="brand"
+        onClick={() => navigate("/")}
+        style={{ cursor: "pointer" }}
+      >
+        <img
+          src={POSlogo}
+          alt=""
+          width="50px"
+          height="50px"
+          style={{ borderRadius: "10px" }}
+        />
         {!isCollapsed && <span className="nav-label">Stock Starter</span>}
       </div>
       <Menu
         theme="dark"
         mode="inline"
         selectedKeys={[activeKey]}
-        defaultOpenKeys={['team-group']}
+        defaultOpenKeys={["team-group"]}
         items={menuItems}
         onClick={handleMenuClick}
-        style={{ borderRight: 0, background: 'transparent' }}
+        style={{ borderRight: 0, background: "transparent" }}
       />
     </div>
-  )
+  );
 }
 
-export default Navigation
+export default Navigation;
