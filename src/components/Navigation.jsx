@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router'
 import { Menu } from 'antd'
+import POSlogo from '/src/assets/image/pos.png'
 import {
   AppstoreOutlined,
   HomeOutlined,
@@ -82,7 +83,7 @@ function Navigation({ isCollapsed }) {
   return (
     <div className="nav-container">
       <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-        <span className="brand-mark">S</span>
+        <img src={POSlogo} alt="" width='50px' height='50px' />
         {!isCollapsed && <span className="nav-label">Stock Starter</span>}
       </div>
       <Menu
