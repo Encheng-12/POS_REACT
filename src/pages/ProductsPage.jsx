@@ -25,12 +25,6 @@ function ProductsPage({ products }) {
         </div>
         <Button
           type="primary"
-          icon={<DownloadOutlined />}
-        >
-          Download
-        </Button>   
-        <Button
-          type="primary"
           icon={<PlusOutlined />}
           onClick={() => navigate('/add-product')}
         >

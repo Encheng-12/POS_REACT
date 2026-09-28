@@ -9,7 +9,7 @@ body {
   margin: 0;
   padding: 0;
   min-width: 320px;
-  color: #172b3a;
+  color: #008bf5;
   background: #f5f7fa;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.5;
@@ -26,6 +26,12 @@ a {
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: #FBE6C2;
+
+}
+
+.nav-label{
+  color: black;
 }
 
 .brand {
@@ -55,7 +61,7 @@ a {
   height: 30px;
   place-items: center;
   border-radius: 6px;
-  background: #1677ff;
+  background: #C49A45;
   color: #ffffff;
   font-weight: 800;
   font-size: 15px;
