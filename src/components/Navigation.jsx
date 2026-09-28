@@ -2,13 +2,13 @@ import { useLocation, useNavigate } from 'react-router'
 import { Menu } from 'antd'
 import POSlogo from '/src/assets/image/pos.png'
 import {
-  AppstoreOutlined,
+  ProductFilled,
   HomeOutlined,
   PlusCircleOutlined,
   ShopOutlined,
   TeamOutlined,
   UserOutlined,
-  PlusSquareFilled,
+  ShoppingCartOutlined,
   TagsFilled
 } from '@ant-design/icons'
 
@@ -24,7 +24,7 @@ function Navigation({ isCollapsed }) {
     },
     {
       key: '/products',
-      icon: <AppstoreOutlined />,
+      icon: <ProductFilled />,
       label: 'Products',
     },
     {
@@ -39,7 +39,7 @@ function Navigation({ isCollapsed }) {
     },
     {
       key: '/order',
-      icon: <PlusSquareFilled />,
+      icon: <ShoppingCartOutlined />,
       label: 'Order'
     },
     {
@@ -83,7 +83,7 @@ function Navigation({ isCollapsed }) {
   return (
     <div className="nav-container">
       <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-        <img src={POSlogo} alt="" width='50px' height='50px' />
+        <img src={POSlogo} alt="" width='50px' height='50px' style={{ borderRadius: 'px' }}/>
         {!isCollapsed && <span className="nav-label">Stock Starter</span>}
       </div>
       <Menu
