@@ -47,7 +47,9 @@ function App() {
           path="/add-product"
           element={<AddProductPage onAddProduct={addProduct} />}
         />
-        <Route path="/order" element={<OrderPage />} />
+        <Route path="/stock-movement" element={<StockMovementPage />} />
+        <Route path="/payments" element={<PaymentPage products={products} />} />
+        <Route path="/orders" element={<OrderPage />} />
         <Route path="/users" element={<UserPage />} />
         <Route path="/team" element={<TeamLayout />}>
           <Route
@@ -64,8 +66,6 @@ function App() {
       <Route path="/shop" element={<ShopLayout />}>
         <Route index element={<UserPage />} />
       </Route>
-      <Route path="/stock-movement" element={<StockMovementPage />} />
-      <Route path="/payment" element={<PaymentPage products={products} />} />
     </Routes>
   );
 }
