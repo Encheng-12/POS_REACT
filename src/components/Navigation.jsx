@@ -83,7 +83,7 @@ function Navigation({ isCollapsed }) {
   return (
     <div className="nav-container">
       <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-        <img src={POSlogo} alt="" width='50px' height='50px' style={{ borderRadius: 'px' }}/>
+        <img src={POSlogo} alt="" width='50px' height='50px' style={{ borderRadius: '10px' }}/>
         {!isCollapsed && <span className="nav-label">Stock Starter</span>}
       </div>
       <Menu
