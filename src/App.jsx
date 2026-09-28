@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router";
 import { starterProducts } from "./data/products.js";
+import { starterOrders } from "./data/orders.js";
 import HomePage from "./pages/HomePage.jsx";
 import ProductsPage from "./pages/ProductsPage.jsx";
 import AddProductPage from "./pages/AddProductPage.jsx";
@@ -19,6 +20,8 @@ import PaymentPage from "./pages/PaymentPage.jsx";
 function App() {
   // State is data that can change while the app is open.
   const [products, setProducts] = useState(starterProducts);
+  const [orders, setOrders] = useState(starterOrders);
+
 
   // useEffect runs after React updates the page.
   useEffect(() => {
@@ -49,7 +52,7 @@ function App() {
         />
         <Route path="/stock-movement" element={<StockMovementPage />} />
         <Route path="/payments" element={<PaymentPage products={products} />} />
-        <Route path="/orders" element={<OrderPage />} />
+        <Route path="/orders" element={<OrderPage orders={orders}/>} />
         <Route path="/users" element={<UserPage />} />
         <Route path="/team" element={<TeamLayout />}>
           <Route
