@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Route, Routes } from 'react-router'
-import { starterProducts } from './data/products.js'
+import { starterProducts} from './data/products.js'
+import { starterOrders} from './data/orders.js'
 import HomePage from './pages/HomePage.jsx'
 import ProductsPage from './pages/ProductsPage.jsx'
 import AddProductPage from './pages/AddProductPage.jsx'
@@ -17,6 +18,7 @@ import CategoryPage from './pages/CategoryPage.jsx'
 function App() {
   // State is data that can change while the app is open.
   const [products, setProducts] = useState(starterProducts)
+  const [orders, setOrders] = useState(starterOrders)
 
   // useEffect runs after React updates the page.
   useEffect(() => {
@@ -27,6 +29,10 @@ function App() {
     setProducts((prevProducts) => [...prevProducts, newProduct])
   }
 
+  function addOrder(newOrder) {
+    setOrders((prevOrders) => [...prevOrders, newOrder])
+  }
+
   return (
     <Routes>
       {/* Main / Admin Layout with Sidebar */}
@@ -35,7 +41,7 @@ function App() {
         <Route path="/products" element={<ProductsPage products={products} />} />
         <Route path="/categories" element={<CategoryPage />} />
         <Route path="/add-product" element={<AddProductPage onAddProduct={addProduct} />} />
-        <Route path="/order" element={<OrderPage/>}/>
+        <Route path="/order" element={<OrderPage orders={orders}/>}/>
         <Route path="/users" element={<UserPage />} />
         <Route path="/team" element={<TeamLayout />}>
           <Route index element={<p>Select Team 1 or Team 2 from the sidebar.</p>} />

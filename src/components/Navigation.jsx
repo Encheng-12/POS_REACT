@@ -38,7 +38,7 @@ function Navigation({ isCollapsed }) {
       label: 'Add product',
     },
     {
-      key: '/order',
+      key: '/orders',
       icon: <ShoppingCartOutlined />,
       label: 'Order'
     },
