@@ -1,22 +1,24 @@
-import { useEffect, useState } from 'react'
-import { Route, Routes } from 'react-router'
-import { starterProducts } from './data/products.js'
-import HomePage from './pages/HomePage.jsx'
-import ProductsPage from './pages/ProductsPage.jsx'
-import AddProductPage from './pages/AddProductPage.jsx'
-import NotFoundPage from './pages/NotFoundPage.jsx'
-import TeamOnePage from './pages/TeamOnePage.jsx'
-import TeamTwoPage from './pages/TeamTwoPage.jsx'
-import TeamLayout from './pages/TeamLayout.jsx'
-import UserPage from './pages/UserPage.jsx'
-import MainLayout from './layouts/MainLayout.jsx'
-import ShopLayout from './layouts/ShopLayout.jsx'
-import OrderPage from './pages/OrderPage.jsx'
-import CategoryPage from './pages/CategoryPage.jsx'
+import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router";
+import { starterProducts } from "./data/products.js";
+import HomePage from "./pages/HomePage.jsx";
+import ProductsPage from "./pages/ProductsPage.jsx";
+import AddProductPage from "./pages/AddProductPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
+import TeamOnePage from "./pages/TeamOnePage.jsx";
+import TeamTwoPage from "./pages/TeamTwoPage.jsx";
+import TeamLayout from "./pages/TeamLayout.jsx";
+import UserPage from "./pages/UserPage.jsx";
+import MainLayout from "./layouts/MainLayout.jsx";
+import ShopLayout from "./layouts/ShopLayout.jsx";
+import OrderPage from "./pages/OrderPage.jsx";
+import CategoryPage from "./pages/CategoryPage.jsx";
+import StockMovementPage from "./pages/StockMovementPage.jsx";
+import PaymentPage from "./pages/PaymentPage.jsx";
 
 function App() {
   // State is data that can change while the app is open.
-  const [products, setProducts] = useState(starterProducts)
+  const [products, setProducts] = useState(starterProducts);
 
   // useEffect runs after React updates the page.
   useEffect(() => {
@@ -28,7 +30,7 @@ function App() {
   }
 
   function addOrder(newOrder) {
-    setOrders((prevOrders) => [...prevOrders, newOrder])
+    setOrders((prevOrders) => [...prevOrders, newOrder]);
   }
 
   return (
@@ -41,8 +43,11 @@ function App() {
           element={<ProductsPage products={products} />}
         />
         <Route path="/categories" element={<CategoryPage />} />
-        <Route path="/add-product" element={<AddProductPage onAddProduct={addProduct} />} />
-        <Route path="/order" element={<OrderPage/>}/>
+        <Route
+          path="/add-product"
+          element={<AddProductPage onAddProduct={addProduct} />}
+        />
+        <Route path="/order" element={<OrderPage />} />
         <Route path="/users" element={<UserPage />} />
         <Route path="/team" element={<TeamLayout />}>
           <Route
