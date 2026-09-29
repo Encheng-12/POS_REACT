@@ -4,7 +4,7 @@ import { Modal, Form, Input, InputNumber, Select, Row, Col, Button } from 'antd'
 const categories = ['Beverages', 'Snacks', 'Bakery', 'Dairy']
 const statuses = ['Active', 'Inactive']
 
-function ProductModal({ open, onCancel, onSave, initialValues }) {
+function ProductModal({ open, onCancel, onSave, initialValues, loading }) {
   const [form] = Form.useForm()
   const isEditing = Boolean(initialValues)
 
@@ -13,7 +13,6 @@ function ProductModal({ open, onCancel, onSave, initialValues }) {
       if (initialValues) {
         form.setFieldsValue(initialValues)
       } else {
-        // Reset to clean empty defaults for "New product"
         form.resetFields()
       }
     }
@@ -23,11 +22,10 @@ function ProductModal({ open, onCancel, onSave, initialValues }) {
     form
       .validateFields()
       .then((values) => {
-        onSave({ ...initialValues, ...values })
-        form.resetFields()
+        onSave(values)
       })
-      .catch((info) => {
-        console.log('Validate Failed:', info)
+      .catch((err) => {
+        console.log('Validation Error:', err)
       })
   }
 
@@ -51,6 +49,7 @@ function ProductModal({ open, onCancel, onSave, initialValues }) {
           size="large"
           onClick={handleCancel}
           style={{ borderRadius: 8, padding: '0 20px', fontWeight: 500 }}
+          disabled={loading}
         >
           Cancel
         </Button>,
@@ -58,6 +57,7 @@ function ProductModal({ open, onCancel, onSave, initialValues }) {
           key="save"
           type="primary"
           size="large"
+          loading={loading}
           onClick={handleSubmit}
           style={{
             backgroundColor: '#10b981',
@@ -89,14 +89,14 @@ function ProductModal({ open, onCancel, onSave, initialValues }) {
           name="name"
           rules={[{ required: true, message: 'Please enter product name' }]}
         >
-          <Input size="large" style={{ borderRadius: 8 }} placeholder="" />
+          <Input size="large" style={{ borderRadius: 8 }} />
         </Form.Item>
 
         <Form.Item
           label={<span style={{ color: '#6b7280', fontWeight: 500 }}>Barcode</span>}
           name="barcode"
         >
-          <Input size="large" style={{ borderRadius: 8 }} placeholder="" />
+          <Input size="large" style={{ borderRadius: 8 }} />
         </Form.Item>
 
         <Row gutter={16}>
