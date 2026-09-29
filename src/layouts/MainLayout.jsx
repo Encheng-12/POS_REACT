@@ -39,9 +39,16 @@ function MainLayout() {
           components: {
             Layout: {
               siderBg: 'white',
-              triggerBg: '#FFF8CF',
+              triggerBg: 'white',
               triggerColor: 'black',
             },
+            Menu: {
+              itemSelectedBg: "#BBF1D2",
+              itemSelectedColor: "black",
+              itemSelectedBorderColor: "red",
+              // activeBarWidth: 3,
+              // activeBarBorderWidth: 0,
+            }
           },
         }}
       >
@@ -82,9 +89,9 @@ function MainLayout() {
             aria-hidden="true"
             style={{ display: "flex", gap: 8, alignItems: "center" }}
           >
-            <span className="window-dot red" />
+            {/* <span className="window-dot red" />
             <span className="window-dot yellow" />
-            <span className="window-dot green" />
+            <span className="window-dot green" /> */}
           </div>
           <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
             React Inventory Practice • Ant Design UI
