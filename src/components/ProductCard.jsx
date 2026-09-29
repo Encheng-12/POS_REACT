@@ -1,66 +1,93 @@
-import { Card, Tag, Typography, Space, Badge } from 'antd'
-import { InboxOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
+import { Card, Tag, Typography, Button, Flex } from 'antd'
+import { GlobalOutlined, DeleteOutlined } from '@ant-design/icons'
 
-const { Title, Text } = Typography
+const { Text, Title } = Typography
 
-function ProductCard({ product }) {
-  const isOutOfStock = product.quantity === 0
+function ProductCard({ product, onEdit, onDelete }) {
+  if (!product) return null
+
+  const isActive = product.status === 'Active' || product.status === 'active'
 
   return (
     <Card
       hoverable
-      className="product-card"
+      onClick={() => onEdit && onEdit(product)}
       style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        borderRadius: 10,
+        borderRadius: 12,
         borderColor: '#e5e7eb',
+        height: '100%',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
       }}
       styles={{
         body: {
+          padding: '16px',
           display: 'flex',
           flexDirection: 'column',
-          height: '100%',
           justifyContent: 'space-between',
-          padding: '20px',
+          height: '100%',
         },
       }}
     >
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <Tag color="blue" icon={<InboxOutlined />}>
-            {product.category}
-          </Tag>
-          <Badge
-            status={isOutOfStock ? 'error' : 'success'}
-            text={
-              <Text type={isOutOfStock ? 'danger' : 'secondary'} style={{ fontSize: 12 }}>
-                {isOutOfStock ? 'Unavailable' : 'Available'}
-              </Text>
-            }
-          />
-        </div>
+        {/* Header: Icon, Name & Quantity */}
+        <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
+          <Flex align="center" gap={8}>
+            <GlobalOutlined style={{ color: '#059669', fontSize: 18 }} />
+            <Title level={5} style={{ margin: 0, fontWeight: 700, fontSize: 15 }}>
+              {product.name}
+            </Title>
+          </Flex>
+          <Text strong style={{ color: '#059669', fontSize: 15 }}>
+            {product.quantity}
+          </Text>
+        </Flex>
 
-        <Title level={4} style={{ margin: '8px 0 16px 0', fontSize: 18 }}>
-          {product.name}
-        </Title>
+        {/* Details Grid */}
+        <Flex vertical gap={6} style={{ marginBottom: 16 }}>
+          <Flex justify="space-between">
+            <Text type="secondary" style={{ fontSize: 12 }}>Category</Text>
+            <Text style={{ fontSize: 12, color: '#4b5563' }}>{product.category}</Text>
+          </Flex>
+
+          <Flex justify="space-between">
+            <Text type="secondary" style={{ fontSize: 12 }}>Selling Price / Cost</Text>
+            <Text style={{ fontSize: 12, color: '#4b5563' }}>
+              ${Number(product.sellingPrice || 0).toFixed(2)} / ${Number(product.costPrice || 0).toFixed(2)}
+            </Text>
+          </Flex>
+
+          <Flex justify="space-between">
+            <Text type="secondary" style={{ fontSize: 12 }}>Barcode</Text>
+            <Text style={{ fontSize: 12, color: '#4b5563' }}>{product.barcode || '-'}</Text>
+          </Flex>
+        </Flex>
       </div>
 
-      <div style={{ paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
-        <Space orientation="horizontal" align="center">
-          {isOutOfStock ? (
-            <Tag color="error" icon={<CloseCircleOutlined />} style={{ padding: '4px 10px', fontSize: 13 }}>
-              Out of stock
-            </Tag>
-          ) : (
-            <Tag color="success" icon={<CheckCircleOutlined />} style={{ padding: '4px 10px', fontSize: 13 }}>
-              <strong>{product.quantity}</strong> in stock
-            </Tag>
-          )}
-        </Space>
-      </div>
+      {/* Card Footer: Status Tag & Delete Action */}
+      <Flex justify="space-between" align="center" style={{ paddingTop: 8 }}>
+        <Tag
+          color={isActive ? 'success' : 'default'}
+          style={{
+            borderRadius: 12,
+            padding: '2px 10px',
+            fontSize: 11,
+            fontWeight: 500,
+          }}
+        >
+          {isActive ? 'active' : 'inactive'}
+        </Tag>
+
+        <Button
+          type="text"
+          danger
+          icon={<DeleteOutlined />}
+          style={{ borderRadius: 6 }}
+          onClick={(e) => {
+            e.stopPropagation() // Prevent triggering card click (edit)
+            onDelete && onDelete(product.id)
+          }}
+        />
+      </Flex>
     </Card>
   )
 }
