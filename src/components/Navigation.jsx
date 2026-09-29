@@ -1,13 +1,14 @@
 import { useLocation, useNavigate } from "react-router";
-import { ConfigProvider, Menu } from "antd";
+import { Menu } from "antd";
+import POSlogo from "/src/assets/image/pos.png";
 import {
-  AppstoreOutlined,
+  ProductFilled,
   HomeOutlined,
   PlusCircleOutlined,
   ShopOutlined,
   TeamOutlined,
   UserOutlined,
-  PlusSquareFilled,
+  ShoppingCartOutlined,
   TagsFilled,
 } from "@ant-design/icons";
 
@@ -23,7 +24,7 @@ function Navigation({ isCollapsed }) {
     },
     {
       key: "/products",
-      icon: <AppstoreOutlined />,
+      icon: <ProductFilled />,
       label: "Products",
     },
     {
@@ -37,9 +38,14 @@ function Navigation({ isCollapsed }) {
       label: "Add product",
     },
     {
-      key: "/order",
-      icon: <PlusSquareFilled />,
+      key: '/orders',
+      icon: <ShoppingCartOutlined />,
       label: "Order",
+    },
+    {
+      key: '/payments',
+      icon: <ShoppingCartOutlined />,
+      label: "Payment",
     },
     {
       key: "/users",
@@ -47,27 +53,32 @@ function Navigation({ isCollapsed }) {
       label: "Users",
     },
     {
+      key: "/stock-movement",
+      icon: <ShopOutlined />,
+      label: "Stock Movement",
+    },
+    {
       key: "/shop",
       icon: <ShopOutlined />,
       label: "Shop",
     },
-    // {
-    //   key: 'team-group',
-    //   icon: <TeamOutlined />,
-    //   label: 'Team',
-    //   children: [
-    //     {
-    //       key: '/team/team-1',
-    //       icon: <UserOutlined />,
-    //       label: 'Team 1',
-    //     },
-    //     {
-    //       key: '/team/team-2',
-    //       icon: <UserOutlined />,
-    //       label: 'Team 2',
-    //     },
-    //   ],
-    // },
+    {
+      key: "team-group",
+      icon: <TeamOutlined />,
+      label: "Team",
+      children: [
+        {
+          key: "/team/team-1",
+          icon: <UserOutlined />,
+          label: "Team 1",
+        },
+        {
+          key: "/team/team-2",
+          icon: <UserOutlined />,
+          label: "Team 2",
+        },
+      ],
+    },
   ];
 
   // Find active key based on current pathname
@@ -86,30 +97,24 @@ function Navigation({ isCollapsed }) {
         onClick={() => navigate("/")}
         style={{ cursor: "pointer" }}
       >
-        <span className="brand-mark">S</span>
+        <img
+          src={POSlogo}
+          alt=""
+          width="50px"
+          height="50px"
+          style={{ borderRadius: "10px" }}
+        />
         {!isCollapsed && <span className="nav-label">Stock Starter</span>}
       </div>
-      <ConfigProvider
-        theme={{
-          components: {
-            Menu: {
-              darkItemSelectedBg: "#FFF8CF", // Selected background (e.g. Red)
-              darkItemSelectedColor: "#000", // Selected text/icon color
-              darkItemColor: "#000",
-            },
-          },
-        }}
-      >
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[activeKey]}
-          defaultOpenKeys={["team-group"]}
-          items={menuItems}
-          onClick={handleMenuClick}
-          style={{ borderRight: 0, background: "transparent" }}
-        />
-      </ConfigProvider>
+      <Menu
+        theme="dark"
+        mode="inline"
+        selectedKeys={[activeKey]}
+        defaultOpenKeys={["team-group"]}
+        items={menuItems}
+        onClick={handleMenuClick}
+        style={{ borderRight: 0, background: "transparent" }}
+      />
     </div>
   );
 }

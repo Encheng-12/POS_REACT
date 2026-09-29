@@ -1,56 +1,43 @@
-import { Checkbox, Form, Input, Calendar, Pagination } from 'antd';
+import { useNavigate } from 'react-router'
+import { Typography, Row, Col, Empty, Button, Tag, Flex } from 'antd'
+import { PlusOutlined, AppstoreOutlined } from '@ant-design/icons'
+import { DownloadOutlined } from '@ant-design/icons';
+import OrderCard from '../components/OrderCard.jsx'
 
-function NewPage(){
+const { Title, Paragraph } = Typography
 
+function OrdersPage({ orders }) {
+  const navigate = useNavigate()
 
-    const onFinish = values => {
-    console.log('Success:', values);
-    };
-    const onFinishFailed = errorInfo => {
-    console.log('Failed:', errorInfo);
-    };
-    const onPanelChange = (value, mode) => {
-    console.log(value.format('YYYY-MM-DD'), mode);
-    };
-    return (
-        <>
-            <Form
-                name="basic"
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
-                style={{ maxWidth: 600 }}
-                initialValues={{ remember: true }}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                autoComplete="off"
-            >
-                <Form.Item
-                label="Username"
-                name="username"
-                rules={[{ required: true, message: 'Please input your username!' }]}
-                >
-                <Input />
-                </Form.Item>
+  return (
+    <div className="order-page">
+      <Flex justify="space-between" align="flex-start" wrap="wrap" gap="middle" style={{ marginBottom: 24 }}>
+        <div>
+          <Title level={2} style={{ margin: '4px 0 8px 0' }}>
+            Orders
+          </Title>
+        </div>
+      </Flex>
 
-                <Form.Item
-                label="Password"
-                name="password"
-                rules={[{ required: true, message: 'Please input your password!' }]}
-                >
-                <Input.Password />
-                </Form.Item>
+      {orders.length === 0 ? (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="There are no orders in the inventory yet."
+          style={{ padding: '40px 0' }}
+        >
 
-                <Form.Item name="remember" valuePropName="checked" label={null}>
-                <Checkbox>Remember me</Checkbox>
-                </Form.Item>    
-            </Form>      
-            <Calendar onPanelChange={onPanelChange} />
-
-            <Pagination align="center" defaultCurrent={1} total={50} />
-
-            <button type="button" class="text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Default</button>
-        </>
-    );
+        </Empty>
+      ) : (
+        <Row gutter={[16, 16]}>
+          {orders.map((order) => (
+            <Col xs={24} sm={12} md={8} lg={8} xl={6} key={order.id}>
+              <OrderCard order={order} />
+            </Col>
+          ))}
+        </Row>
+      )}
+    </div>
+  )
 }
 
-export default NewPage
+export default OrdersPage
