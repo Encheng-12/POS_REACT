@@ -1,95 +1,143 @@
-import { Form, Input, InputNumber, Button, Select, Space, App } from 'antd'
-import { PlusOutlined, UndoOutlined, TagOutlined, FontSizeOutlined } from '@ant-design/icons'
+import { useEffect } from 'react'
+import { Form, Input, InputNumber, Select, Row, Col, Button, Flex } from 'antd'
 
-const defaultCategories = ['Stationery', 'Electronics', 'Kitchen', 'Office Supplies', 'Furniture', 'Clothing']
+const categories = ['Beverages', 'Snacks', 'Bakery', 'Dairy']
+const statuses = ['Active', 'Inactive']
 
-function ProductForm({ onAddProduct }) {
+function ProductForm({ initialValues, onSave, onCancel }) {
   const [form] = Form.useForm()
-  const { message } = App.useApp()
 
-  const onFinish = (values) => {
-    onAddProduct({
-      id: Date.now(),
-      name: values.name.trim(),
-      category: values.category.trim(),
-      quantity: Number(values.quantity),
-    })
+  useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue(initialValues)
+    } else {
+      form.resetFields()
+    }
+  }, [initialValues, form])
 
-    form.resetFields()
-    message.success(`Product "${values.name}" added successfully! Open Products to view it.`)
-  }
-
-  const handleReset = () => {
-    form.resetFields()
+  const handleSubmit = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        onSave({ ...initialValues, ...values })
+        form.resetFields()
+      })
+      .catch((err) => {
+        console.log('Validation Error:', err)
+      })
   }
 
   return (
     <Form
       form={form}
       layout="vertical"
-      onFinish={onFinish}
-      initialValues={{ quantity: 1 }}
-      style={{ maxWidth: 540 }}
-      autoComplete="off"
+      preserve={false}
+      initialValues={{
+        category: 'Beverages',
+        status: 'Active',
+      }}
+      style={{ marginTop: 12 }}
     >
       <Form.Item
-        label="Product Name"
+        label={<span style={{ color: '#6b7280', fontWeight: 500 }}>Product name</span>}
         name="name"
-        rules={[
-          { required: true, message: 'Please enter a product name' },
-          { min: 2, message: 'Product name must be at least 2 characters' },
-        ]}
+        rules={[{ required: true, message: 'Please enter product name' }]}
       >
-        <Input
-          prefix={<FontSizeOutlined style={{ color: '#bfbfbf' }} />}
-          placeholder="e.g. Wireless Mouse"
-          size="large"
-        />
+        <Input size="large" style={{ borderRadius: 8 }} />
       </Form.Item>
 
       <Form.Item
-        label="Category"
-        name="category"
-        rules={[{ required: true, message: 'Please select or enter a category' }]}
+        label={<span style={{ color: '#6b7280', fontWeight: 500 }}>Barcode</span>}
+        name="barcode"
       >
-        <Select
-          showSearch
-          size="large"
-          placeholder="Select or enter a category"
-          prefix={<TagOutlined style={{ color: '#bfbfbf' }} />}
-          filterOption={(input, option) =>
-            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-          }
-          options={defaultCategories.map((cat) => ({ value: cat, label: cat }))}
-        />
+        <Input size="large" style={{ borderRadius: 8 }} />
       </Form.Item>
 
+      <Row gutter={16}>
+        <Col span={12}>
+          <Form.Item
+            label={<span style={{ color: '#6b7280', fontWeight: 500 }}>Category</span>}
+            name="category"
+            rules={[{ required: true }]}
+          >
+            <Select size="large" style={{ borderRadius: 8 }}>
+              {categories.map((cat) => (
+                <Select.Option key={cat} value={cat}>
+                  {cat}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Col>
+
+        <Col span={12}>
+          <Form.Item
+            label={<span style={{ color: '#6b7280', fontWeight: 500 }}>Status</span>}
+            name="status"
+            rules={[{ required: true }]}
+          >
+            <Select size="large" style={{ borderRadius: 8 }}>
+              {statuses.map((st) => (
+                <Select.Option key={st} value={st}>
+                  {st}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <Row gutter={16}>
+        <Col span={12}>
+          <Form.Item
+            label={<span style={{ color: '#6b7280', fontWeight: 500 }}>Cost price</span>}
+            name="costPrice"
+          >
+            <InputNumber size="large" style={{ width: '100%', borderRadius: 8 }} min={0} step={0.01} />
+          </Form.Item>
+        </Col>
+
+        <Col span={12}>
+          <Form.Item
+            label={<span style={{ color: '#6b7280', fontWeight: 500 }}>Selling price</span>}
+            name="sellingPrice"
+          >
+            <InputNumber size="large" style={{ width: '100%', borderRadius: 8 }} min={0} step={0.01} />
+          </Form.Item>
+        </Col>
+      </Row>
+
       <Form.Item
-        label="Quantity"
+        label={<span style={{ color: '#6b7280', fontWeight: 500 }}>Stock quantity</span>}
         name="quantity"
-        rules={[
-          { required: true, message: 'Please enter product quantity' },
-          { type: 'number', min: 0, message: 'Quantity cannot be negative' },
-        ]}
       >
-        <InputNumber
-          min={0}
-          size="large"
-          placeholder="0"
-          style={{ width: '100%' }}
-        />
+        <InputNumber size="large" style={{ width: '100%', borderRadius: 8 }} min={0} />
       </Form.Item>
 
-      <Form.Item style={{ marginTop: 24 }}>
-        <Space orientation="horizontal" size="middle">
-          <Button type="primary" htmlType="submit" size="large" icon={<PlusOutlined />}>
-            Save Product
-          </Button>
-          <Button size="large" onClick={handleReset} icon={<UndoOutlined />}>
-            Reset
-          </Button>
-        </Space>
-      </Form.Item>
+      {/* Footer Buttons matching designs */}
+      <Flex justify="end" gap={12} style={{ marginTop: 24 }}>
+        <Button
+          size="large"
+          onClick={onCancel}
+          style={{ borderRadius: 8, padding: '0 20px', fontWeight: 500 }}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="primary"
+          size="large"
+          onClick={handleSubmit}
+          style={{
+            backgroundColor: '#10b981',
+            borderColor: '#10b981',
+            borderRadius: 8,
+            padding: '0 24px',
+            fontWeight: 500,
+          }}
+        >
+          Save
+        </Button>
+      </Flex>
     </Form>
   )
 }

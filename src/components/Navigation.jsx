@@ -23,6 +23,11 @@ function Navigation({ isCollapsed }) {
       label: "Overview",
     },
     {
+      key: "/users",
+      icon: <UserOutlined />,
+      label: "Users",
+    },
+    {
       key: "/products",
       icon: <ProductFilled />,
       label: "Products",
@@ -48,37 +53,32 @@ function Navigation({ isCollapsed }) {
       label: "Payment",
     },
     {
-      key: "/users",
-      icon: <UserOutlined />,
-      label: "Users",
-    },
-    {
       key: "/stock-movement",
       icon: <ShopOutlined />,
       label: "Stock Movement",
     },
-    {
-      key: "/shop",
-      icon: <ShopOutlined />,
-      label: "Shop",
-    },
-    {
-      key: "team-group",
-      icon: <TeamOutlined />,
-      label: "Team",
-      children: [
-        {
-          key: "/team/team-1",
-          icon: <UserOutlined />,
-          label: "Team 1",
-        },
-        {
-          key: "/team/team-2",
-          icon: <UserOutlined />,
-          label: "Team 2",
-        },
-      ],
-    },
+    // {
+    //   key: "/shop",
+    //   icon: <ShopOutlined />,
+    //   label: "Shop",
+    // },
+    // {
+    //   key: "team-group",
+    //   icon: <TeamOutlined />,
+    //   label: "Team",
+    //   children: [
+    //     {
+    //       key: "/team/team-1",
+    //       icon: <UserOutlined />,
+    //       label: "Team 1",
+    //     },
+    //     {
+    //       key: "/team/team-2",
+    //       icon: <UserOutlined />,
+    //       label: "Team 2",
+    //     },
+    //   ],
+    // },
   ];
 
   // Find active key based on current pathname
@@ -97,17 +97,17 @@ function Navigation({ isCollapsed }) {
         onClick={() => navigate("/")}
         style={{ cursor: "pointer" }}
       >
-        <img
+        {/* <img
           src={POSlogo}
           alt=""
           width="50px"
           height="50px"
           style={{ borderRadius: "10px" }}
-        />
-        {!isCollapsed && <span className="nav-label">Stock Starter</span>}
+        /> */}
+        {!isCollapsed && <span className="nav-label">MyPOS</span>}
       </div>
       <Menu
-        theme="dark"
+        theme="light"
         mode="inline"
         selectedKeys={[activeKey]}
         defaultOpenKeys={["team-group"]}

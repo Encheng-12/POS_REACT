@@ -13,7 +13,6 @@ function UserPage() {
 
   return (
     <div className="products-page">
-      <h1>Hello</h1>
       <UserTable />
     </div>
   )
