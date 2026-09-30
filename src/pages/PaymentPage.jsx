@@ -77,7 +77,7 @@ function PaymentPage() {
         <button
           onClick={() => handleMethodChange("all")}
           className={`rounded-full px-5 py-2 font-medium ${
-            activeMethod === "all"
+            activeFilter === "all"
               ? "bg-green-500 text-white"
               : "bg-gray-100 text-gray-600"
           }`}
@@ -88,7 +88,7 @@ function PaymentPage() {
         <button
           onClick={() => handleMethodChange("cash")}
           className={`rounded-full px-5 py-2 font-medium ${
-            activeMethod === "cash"
+            activeFilter === "cash"
               ? "bg-green-500 text-white"
               : "bg-gray-100 text-gray-600"
           }`}
@@ -99,7 +99,7 @@ function PaymentPage() {
         <button
           onClick={() => handleMethodChange("aba")}
           className={`rounded-full px-5 py-2 font-medium ${
-            activeMethod === "aba"
+            activeFilter === "aba"
               ? "bg-green-500 text-white"
               : "bg-gray-100 text-gray-600"
           }`}
@@ -110,7 +110,7 @@ function PaymentPage() {
         <button
           onClick={() => handleMethodChange("acleda")}
           className={`rounded-full px-5 py-2 font-medium ${
-            activeMethod === "acleda"
+            activeFilter === "acleda"
               ? "bg-green-500 text-white"
               : "bg-gray-100 text-gray-600"
           }`}
@@ -121,7 +121,7 @@ function PaymentPage() {
         <button
           onClick={() => handleMethodChange("wing")}
           className={`rounded-full px-5 py-2 font-medium ${
-            activeMethod === "wing"
+            activeFilter === "wing"
               ? "bg-green-500 text-white"
               : "bg-gray-100 text-gray-600"
           }`}
