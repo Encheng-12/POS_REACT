@@ -1,5 +1,6 @@
 // src/services/productService.js
-const API_URL = 'http://127.0.0.1:8000/api/products'
+const apiurl = import.meta.env.VITE_API_URL
+const API_URL = apiurl + '/products'
 
 // Helper function to map Laravel backend JSON format to React UI format
 const mapProductData = (item) => ({

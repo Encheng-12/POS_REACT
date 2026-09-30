@@ -20,13 +20,14 @@ function ProductsPage() {
   const [saving, setSaving] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalProducts, setTotalProducts] = useState(0)
+  const [lastpage, setLastPage] = useState(0)
 
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
 
-  const categories = ['All', 'Beverages', 'Snacks & Confectionery', 'Bakery & Pastries', 'Dairy']
+  const categories = ['All', 'Beverages', 'Snacks & Confectionery', 'Bakery & Pastries', 'Dairy & Eggs']
 
   const loadProducts = async (page = 1) => {
     try {
@@ -35,6 +36,7 @@ function ProductsPage() {
       setProducts(products)
       setTotalProducts(pagination.total)
       setCurrentPage(pagination.currentPage)
+      setLastPage(pagination.lastPage)
     } catch (error) {
       message.error(error.message || 'Failed to fetch products')
     } finally {
@@ -178,8 +180,8 @@ function ProductsPage() {
       <Flex justify="center" style={{ marginTop: 24 }}>
         <Pagination
           current={currentPage}
-          total={totalProducts}
-          pageSize={3}
+          total={lastpage}
+          pageSize={12}
           onChange={(page) => setCurrentPage(page)}
         />
       </Flex>
