@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Table, App, Space, Divider, Typography } from 'antd'
 const { Link } = Typography
-
+const apiurl = import.meta.env.VITE_API_URL
+const API_URL = apiurl + '/users'
 // Columns for server-side table (set sorter: true instead of a client compare function)
 const columns = [
   {
     title: 'ID',
-    dataIndex: 'name',
+    dataIndex: 'id',
     sorter: true,
   },
   {
@@ -76,15 +77,15 @@ function UserTable() {
       const sortField = sorter.field || ''
       const sortOrder = sorter.order === 'ascend' ? 'asc' : sorter.order === 'descend' ? 'desc' : ''
 
-      let url = `http://127.0.0.1:9000/api/users`
+      let url = API_URL+'/users'
       if (sortField) {
-        url += `&sortBy=${sortField}&order=${sortOrder}`
+        url += `?sortBy=${sortField}&order=${sortOrder}`
       }
 
       const response = await fetch(url)
       const result = await response.json()
 
-      setData(result || [])
+      setData(result.data || [])
       setPagination((prev) => ({
         ...prev,
         current: page,
