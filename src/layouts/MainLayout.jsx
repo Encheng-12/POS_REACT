@@ -18,6 +18,7 @@ function MainLayout() {
     "/team": ["Team"],
     "/team/team-1": ["Team", "Team 1"],
     "/team/team-2": ["Team", "Team 2"],
+    "/stock-movement": ["Stock Movement"],
   };
 
   const currentBreadcrumbs = breadcrumbMap[location.pathname] || ["Overview"];
@@ -38,9 +39,9 @@ function MainLayout() {
         theme={{
           components: {
             Layout: {
-              siderBg: 'white',
-              triggerBg: 'white',
-              triggerColor: 'black',
+              siderBg: "white",
+              triggerBg: "white",
+              triggerColor: "black",
             },
             Menu: {
               itemSelectedBg: "#BBF1D2",
@@ -48,7 +49,7 @@ function MainLayout() {
               itemSelectedBorderColor: "red",
               // activeBarWidth: 3,
               // activeBarBorderWidth: 0,
-            }
+            },
           },
         }}
       >
