@@ -217,7 +217,11 @@ function PaymentPage() {
                         <td className="px-6 py-4 font-medium">#{payment.id}</td>
 
                         {/* Order */}
-                        <td className="px-6 py-4">Order #{payment.orderId}</td>
+                        <td className="px-6 py-4">
+                          {payment.order?.invoice_no
+                            ? payment.order.invoice_no
+                            : `Order #${payment.orderId}`}
+                        </td>
 
                         {/* Payment Method */}
                         <td className="px-6 py-4">
