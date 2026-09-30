@@ -77,7 +77,7 @@ function UserTable() {
       const sortField = sorter.field || ''
       const sortOrder = sorter.order === 'ascend' ? 'asc' : sorter.order === 'descend' ? 'desc' : ''
 
-      let url = API_URL+'/users'
+      let url = API_URL
       if (sortField) {
         url += `?sortBy=${sortField}&order=${sortOrder}`
       }
