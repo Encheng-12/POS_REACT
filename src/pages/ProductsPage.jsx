@@ -27,7 +27,7 @@ function ProductsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
 
-  const categories = ['All', 'Beverages', 'Snacks & Confectionery', 'Bakery & Pastries', 'Dairy']
+  const categories = ['All', 'Beverages', 'Snacks & Confectionery', 'Bakery & Pastries', 'Dairy & Eggs']
 
   const loadProducts = async (page = 1) => {
     try {

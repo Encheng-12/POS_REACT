@@ -1,5 +1,6 @@
 // src/services/orderapi.js
-const API_URL = "http://127.0.0.1:8000/api/orders";
+const apiurl = import.meta.env.VITE_API_URL
+const API_URL = apiurl + "/orders";
 
 // Helper function to map Laravel order JSON format to React UI format
 const mapOrderData = (item) => ({
