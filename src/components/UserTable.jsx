@@ -5,13 +5,13 @@ const { Link } = Typography
 // Columns for server-side table (set sorter: true instead of a client compare function)
 const columns = [
   {
-    title: 'First Name',
-    dataIndex: 'firstName',
+    title: 'ID',
+    dataIndex: 'name',
     sorter: true,
   },
   {
-    title: 'Last Name',
-    dataIndex: 'lastName',
+    title: 'Name',
+    dataIndex: 'name',
     sorter: true,
   },
   {
@@ -20,10 +20,29 @@ const columns = [
     sorter: true,
   },
   {
+    title: 'Email',
+    dataIndex: 'email',
+    sorter: true,
+  },
+  {
     title: 'Address',
     dataIndex: ['address', 'address'],
   },
-  
+  {
+    title: 'Phone Number',
+    dataIndex: 'phone_number',
+    sorter: true,
+  },
+  {
+    title: 'Role',
+    dataIndex: 'role',
+    sorter: true,
+  },
+  {
+    title: 'Status',
+    title: 'status',
+    sorter: true,
+  },
 {
     title: 'Action',
     key: 'action',
@@ -57,7 +76,7 @@ function UserTable() {
       const sortField = sorter.field || ''
       const sortOrder = sorter.order === 'ascend' ? 'asc' : sorter.order === 'descend' ? 'desc' : ''
 
-      let url = `https://dummyjson.com/users?limit=${pageSize}&skip=${skip}`
+      let url = `http://127.0.0.1:9000/api/users`
       if (sortField) {
         url += `&sortBy=${sortField}&order=${sortOrder}`
       }
@@ -65,7 +84,7 @@ function UserTable() {
       const response = await fetch(url)
       const result = await response.json()
 
-      setData(result.users || result.data || [])
+      setData(result || [])
       setPagination((prev) => ({
         ...prev,
         current: page,
