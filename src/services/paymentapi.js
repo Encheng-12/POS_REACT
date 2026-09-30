@@ -10,13 +10,16 @@ const mapPaymentData = (item) => ({
   createdAt: item.created_at,
 });
 
-export const getPayments = async (page = 1) => {
-  const response = await fetch(`${API_URL}?page=${page}&per_page=10`, {
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
+export const getPayments = async (page = 1, method = "all") => {
+  const response = await fetch(
+    `${API_URL}?page=${page}&per_page=10&method=${method}`,
+    {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch payments");
