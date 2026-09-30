@@ -38,11 +38,6 @@ function Navigation({ isCollapsed }) {
       label: "Categories",
     },
     {
-      key: "/add-product",
-      icon: <PlusCircleOutlined />,
-      label: "Add product",
-    },
-    {
       key: '/orders',
       icon: <ShoppingCartOutlined />,
       label: "Order",
@@ -57,28 +52,7 @@ function Navigation({ isCollapsed }) {
       icon: <ShopOutlined />,
       label: "Stock Movement",
     },
-    // {
-    //   key: "/shop",
-    //   icon: <ShopOutlined />,
-    //   label: "Shop",
-    // },
-    // {
-    //   key: "team-group",
-    //   icon: <TeamOutlined />,
-    //   label: "Team",
-    //   children: [
-    //     {
-    //       key: "/team/team-1",
-    //       icon: <UserOutlined />,
-    //       label: "Team 1",
-    //     },
-    //     {
-    //       key: "/team/team-2",
-    //       icon: <UserOutlined />,
-    //       label: "Team 2",
-    //     },
-    //   ],
-    // },
+
   ];
 
   // Find active key based on current pathname

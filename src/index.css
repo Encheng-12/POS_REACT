@@ -42,9 +42,10 @@ a {
 
 
 .nav-label{
-  color: #BBF1D2;
-  font-size: 25px;
-  text-align: center;
+  color: #5CCB5F;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing:-0.02em;
 }
 
 .brand {
