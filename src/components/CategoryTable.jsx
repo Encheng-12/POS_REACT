@@ -53,7 +53,7 @@ function CategoryTable() {
       const sortField = sorter.field || ''
       const sortOrder = sorter.order === 'ascend' ? 'asc' : sorter.order === 'descend' ? 'desc' : ''
 
-      let url = API_URL+'/categories'
+      let url = API_URL
       if (sortField) {
         url += `?sortby=${sortField}&order=${sortOrder}`
       }
