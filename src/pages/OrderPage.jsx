@@ -1,16 +1,62 @@
-import { useState } from 'react'
+// src/pages/OrdersPage.jsx
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router'
-import { Typography, Button, Tag, Table, Card, Flex, Drawer, Row, Col, Segmented } from 'antd'
-import { PlusOutlined, EyeOutlined, AppstoreOutlined, UnorderedListOutlined } from '@ant-design/icons'
+import {
+  Typography,Button,Tag,Table,Card,Flex,Drawer,Row,Col,Segmented,Spin,Pagination,App,
+} from 'antd'
+import {
+  PlusOutlined,EyeOutlined,AppstoreOutlined,UnorderedListOutlined,
+} from '@ant-design/icons'
 import OrderCard from '../components/OrderCard.jsx'
+import { getOrders } from '../services/orderapi.js'
 
 const { Title, Text } = Typography
 
-function OrdersPage({ orders = [] }) {
+function OrdersPage() {
   const navigate = useNavigate()
+  const { message } = App.useApp()
+
+  // State Management
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [viewMode, setViewMode] = useState('table') // 'table' | 'cards'
+
+  // Dynamic Pagination State
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [totalOrders, setTotalOrders] = useState(0)
+
+  // Fetch orders from API
+  const loadOrders = useCallback(async () => {
+    try {
+      setLoading(true)
+      const { orders: fetchedOrders, pagination } = await getOrders({
+        page: currentPage,
+        perPage: pageSize,
+      })
+      setOrders(fetchedOrders)
+      setTotalOrders(pagination.total)
+      setCurrentPage(pagination.currentPage)
+    } catch (error) {
+      message.error(error.message || 'Failed to fetch orders')
+    } finally {
+      setLoading(false)
+    }
+  }, [currentPage, pageSize, message])
+
+  useEffect(() => {
+    loadOrders()
+  }, [loadOrders])
+
+  const handlePaginationChange = (page, newPageSize) => {
+    setCurrentPage(page)
+    if (newPageSize !== pageSize) {
+      setPageSize(newPageSize)
+      setCurrentPage(1)
+    }
+  }
 
   const handleViewOrder = (order) => {
     setSelectedOrder(order)
@@ -25,9 +71,11 @@ function OrdersPage({ orders = [] }) {
   // Color map helper for order statuses
   const renderStatusTag = (status) => {
     const statusMap = {
+      Completed: { color: 'success' },
       Paid: { color: 'success' },
-      Refunded: { color: 'error' },
       Pending: { color: 'warning' },
+      Cancelled: { color: 'error' },
+      Refunded: { color: 'error' },
     }
     const { color } = statusMap[status] || { color: 'default' }
 
@@ -45,23 +93,25 @@ function OrdersPage({ orders = [] }) {
     )
   }
 
-  // Main Table Columns Definition
+  // Table Columns Definition mapping to API fields
   const columns = [
     {
       title: 'Invoice',
-      dataIndex: 'invoice',
-      key: 'invoice',
-      render: (text) => <Text style={{ color: '#333' }}>{text}</Text>,
+      dataIndex: 'invoiceNo',
+      key: 'invoiceNo',
+      render: (text) => <Text style={{ color: '#333', fontWeight: 600 }}>{text}</Text>,
     },
     {
       title: 'Customer',
       dataIndex: 'customer',
       key: 'customer',
+      render: (customer) => customer?.name || 'N/A',
     },
     {
-      title: 'Cashier',
-      dataIndex: 'cashier',
-      key: 'cashier',
+      title: 'Cashier ID',
+      dataIndex: 'cashierId',
+      key: 'cashierId',
+      render: (id) => `Cashier #${id}`,
     },
     {
       title: 'Subtotal',
@@ -113,20 +163,35 @@ function OrdersPage({ orders = [] }) {
   const lineItemColumns = [
     { title: 'Product', dataIndex: 'product', key: 'product' },
     { title: 'Qty', dataIndex: 'qty', key: 'qty' },
-    { title: 'Unit', dataIndex: 'unitPrice', key: 'unitPrice', render: (val) => `$${Number(val || 0).toFixed(2)}` },
-    { title: 'Disc.', dataIndex: 'discount', key: 'discount', render: (val) => `$${Number(val || 0).toFixed(2)}` },
-    { title: 'Subtotal', dataIndex: 'subtotal', key: 'subtotal', render: (val) => `$${Number(val || 0).toFixed(2)}` },
+    {
+      title: 'Unit',
+      dataIndex: 'unitPrice',
+      key: 'unitPrice',
+      render: (val) => `$${Number(val || 0).toFixed(2)}`,
+    },
+    {
+      title: 'Disc.',
+      dataIndex: 'discount',
+      key: 'discount',
+      render: (val) => `$${Number(val || 0).toFixed(2)}`,
+    },
+    {
+      title: 'Subtotal',
+      dataIndex: 'subtotal',
+      key: 'subtotal',
+      render: (val) => `$${Number(val || 0).toFixed(2)}`,
+    },
   ]
 
   return (
     <div style={{ padding: '24px', backgroundColor: '#f4f6f8', minHeight: '100vh' }}>
-      {/* Top Bar Header */}
+      {/* Header Bar */}
       <Flex justify="space-between" align="center" style={{ marginBottom: 20 }}>
         <div>
           <Title level={2} style={{ margin: 0, fontWeight: 700 }}>
             Orders
           </Title>
-          <Text type="secondary">{orders.length} orders</Text>
+          <Text type="secondary">{totalOrders} orders total</Text>
         </div>
 
         <Flex gap="middle" align="center">
@@ -156,44 +221,66 @@ function OrdersPage({ orders = [] }) {
       </Flex>
 
       {/* Main Content Layout (Table or Cards Grid) */}
-      {viewMode === 'table' ? (
-        <Card bordered={false} bodyStyle={{ padding: 0 }} style={{ borderRadius: 12, overflow: 'hidden' }}>
-          <Table
-            columns={columns}
-            dataSource={orders}
-            rowKey={(record) => record.id || record.invoice}
-            pagination={false}
+      <Spin spinning={loading}>
+        {viewMode === 'table' ? (
+          <Card
+            variant="borderless"
+            styles={{ body: { padding: 0 } }}
+            style={{ borderRadius: 12, overflow: 'hidden' }}
+          >
+            <Table
+              columns={columns}
+              dataSource={orders}
+              rowKey="id"
+              pagination={false}
+            />
+          </Card>
+        ) : (
+          <Row gutter={[16, 16]}>
+            {orders.map((order) => (
+              <Col xs={24} sm={12} md={8} lg={6} key={order.id}>
+                <OrderCard order={order} onView={handleViewOrder} />
+              </Col>
+            ))}
+          </Row>
+        )}
+      </Spin>
+
+      {/* Dynamic API Pagination Footer */}
+      {totalOrders > pageSize && (
+        <Flex justify="center" style={{ marginTop: 24 }}>
+          <Pagination
+            current={currentPage}
+            total={totalOrders}
+            pageSize={pageSize}
+            showSizeChanger
+            pageSizeOptions={['10', '20', '50']}
+            onChange={handlePaginationChange}
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} orders`}
           />
-        </Card>
-      ) : (
-        <Row gutter={[16, 16]}>
-          {orders.map((order) => (
-            <Col xs={24} sm={12} md={8} lg={6} key={order.id || order.invoice}>
-              <OrderCard order={order} onView={handleViewOrder} />
-            </Col>
-          ))}
-        </Row>
+        </Flex>
       )}
 
-      {/* Detail Pop-up Drawer (Right side) */}
+      {/* Detail Pop-up Drawer */}
       <Drawer
-        title={<Title level={4} style={{ margin: 0 }}>{selectedOrder?.invoice}</Title>}
+        title={<Title level={4} style={{ margin: 0 }}>{selectedOrder?.invoiceNo}</Title>}
         placement="right"
-        width={480}
+        style={{ maxWidth: '100vw' }}
+        // width = {480} // Width override via standard prop or style
+        styles={{ body: { padding: '20px' } }}
         onClose={handleCloseDrawer}
         open={drawerOpen}
-        bodyStyle={{ padding: '20px' }}
       >
         {selectedOrder && (
           <Flex vertical gap="middle">
             <Row gutter={[16, 16]}>
               <Col span={12}>
                 <Text type="secondary">Customer</Text>
-                <div><strong>{selectedOrder.customer}</strong></div>
+                <div><strong>{selectedOrder.customer?.name || 'N/A'}</strong></div>
               </Col>
               <Col span={12}>
-                <Text type="secondary">Cashier</Text>
-                <div><strong>{selectedOrder.cashier}</strong></div>
+                <Text type="secondary">Cashier ID</Text>
+                <div><strong>Cashier #{selectedOrder.cashierId}</strong></div>
               </Col>
               <Col span={12}>
                 <Text type="secondary">Status</Text>
@@ -201,7 +288,11 @@ function OrdersPage({ orders = [] }) {
               </Col>
               <Col span={12}>
                 <Text type="secondary">Total</Text>
-                <div><Title level={4} style={{ margin: 0 }}>${Number(selectedOrder.total || 0).toFixed(2)}</Title></div>
+                <div>
+                  <Title level={4} style={{ margin: 0 }}>
+                    ${Number(selectedOrder.total || 0).toFixed(2)}
+                  </Title>
+                </div>
               </Col>
             </Row>
 
@@ -227,14 +318,28 @@ function OrdersPage({ orders = [] }) {
                 <Text type="secondary">Tax</Text>
                 <Text>${Number(selectedOrder.tax || 0).toFixed(2)}</Text>
               </Flex>
-              <Flex justify="space-between" align="center" style={{ marginTop: 8, borderTop: '1px dashed #d9d9d9', paddingTop: 8 }}>
+              <Flex
+                justify="space-between"
+                align="center"
+                style={{
+                  marginTop: 8,
+                  borderTop: '1px dashed #d9d9d9',
+                  paddingTop: 8,
+                }}
+              >
                 <Title level={4} style={{ margin: 0 }}>Total</Title>
-                <Title level={4} style={{ margin: 0 }}>${Number(selectedOrder.total || 0).toFixed(2)}</Title>
+                <Title level={4} style={{ margin: 0 }}>
+                  ${Number(selectedOrder.total || 0).toFixed(2)}
+                </Title>
               </Flex>
             </Flex>
 
             <Text strong style={{ marginTop: 12 }}>Payment</Text>
-            <Card style={{ borderRadius: 8, backgroundColor: '#fafafa' }} bodyStyle={{ padding: 16 }}>
+            <Card
+              variant="borderless"
+              style={{ borderRadius: 8, backgroundColor: '#fafafa' }}
+              styles={{ body: { padding: 16 } }}
+            >
               <Flex vertical gap="small">
                 <Flex justify="space-between">
                   <Text type="secondary">Method</Text>
