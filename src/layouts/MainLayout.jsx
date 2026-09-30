@@ -19,6 +19,7 @@ function MainLayout() {
     "/team/team-1": ["Team", "Team 1"],
     "/team/team-2": ["Team", "Team 2"],
     "/stock-movement": ["Stock Movement"],
+    "/payments": ["Payments"],
   };
 
   const currentBreadcrumbs = breadcrumbMap[location.pathname] || ["Overview"];
