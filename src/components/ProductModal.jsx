@@ -105,7 +105,7 @@ function ProductModal({ open, onCancel, onSave, initialValues, loading }) {
       ]}
       width={500}
       centered
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}
