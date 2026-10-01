@@ -1,14 +1,28 @@
-// src/pages/OrdersPage.jsx
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router'
 import {
-  Typography,Button,Tag,Table,Card,Flex,Drawer,Row,Col,Segmented,Spin,Pagination,App,
+  Typography,
+  Button,
+  Tag,
+  Table,
+  Card,
+  Flex,
+  Drawer,
+  Row,
+  Col,
+  Segmented,
+  Spin,
+  Pagination,
+  App,
 } from 'antd'
 import {
-  PlusOutlined,EyeOutlined,AppstoreOutlined,UnorderedListOutlined,
+  PlusOutlined,
+  EyeOutlined,
+  AppstoreOutlined,
+  UnorderedListOutlined,
 } from '@ant-design/icons'
 import OrderCard from '../components/OrderCard.jsx'
-import { getOrders } from '../services/orderapi.js'
+import { getOrders, getUserById } from '../services/orderapi.js'
 
 const { Title, Text } = Typography
 
@@ -58,9 +72,33 @@ function OrdersPage() {
     }
   }
 
-  const handleViewOrder = (order) => {
+  const handleViewOrder = async (order) => {
     setSelectedOrder(order)
     setDrawerOpen(true)
+
+    // Dynamically fetch customer details if customer ID exists but name is missing
+    if (order.customerId && !order.customer?.name) {
+      const user = await getUserById(order.customerId)
+      if (user) {
+        setSelectedOrder((prev) =>
+          prev && prev.id === order.id
+            ? { ...prev, customer: user, customerName: user.name }
+            : prev
+        )
+      }
+    }
+
+    // Dynamically fetch cashier details if cashier ID exists but name is missing
+    if (order.cashierId && !order.cashierName) {
+      const cashier = await getUserById(order.cashierId)
+      if (cashier) {
+        setSelectedOrder((prev) =>
+          prev && prev.id === order.id
+            ? { ...prev, cashierName: cashier.name }
+            : prev
+        )
+      }
+    }
   }
 
   const handleCloseDrawer = () => {
@@ -99,19 +137,25 @@ function OrdersPage() {
       title: 'Invoice',
       dataIndex: 'invoiceNo',
       key: 'invoiceNo',
-      render: (text) => <Text style={{ color: '#333', fontWeight: 600 }}>{text}</Text>,
+      render: (text, record) => (
+        <Text style={{ color: '#333', fontWeight: 600 }}>
+          {text || record.invoice || `INV-${record.id}`}
+        </Text>
+      ),
     },
     {
       title: 'Customer',
       dataIndex: 'customer',
       key: 'customer',
-      render: (customer) => customer?.name || 'N/A',
+      render: (customer, record) =>
+        customer?.name || record.customerName || (record.customerId ? `User #${record.customerId}` : 'Walk-in'),
     },
     {
       title: 'Cashier ID',
       dataIndex: 'cashierId',
       key: 'cashierId',
-      render: (id) => `Cashier #${id}`,
+      render: (id, record) =>
+        record.cashierName ? record.cashierName : id ? `Cashier #${id}` : '-',
     },
     {
       title: 'Subtotal',
@@ -263,10 +307,13 @@ function OrdersPage() {
 
       {/* Detail Pop-up Drawer */}
       <Drawer
-        title={<Title level={4} style={{ margin: 0 }}>{selectedOrder?.invoiceNo}</Title>}
+        title={
+          <Title level={4} style={{ margin: 0 }}>
+            {selectedOrder?.invoiceNo || selectedOrder?.invoice || `INV-${selectedOrder?.id}`}
+          </Title>
+        }
         placement="right"
         style={{ maxWidth: '100vw' }}
-        // width = {480} // Width override via standard prop or style
         styles={{ body: { padding: '20px' } }}
         onClose={handleCloseDrawer}
         open={drawerOpen}
@@ -276,11 +323,22 @@ function OrdersPage() {
             <Row gutter={[16, 16]}>
               <Col span={12}>
                 <Text type="secondary">Customer</Text>
-                <div><strong>{selectedOrder.customer?.name || 'N/A'}</strong></div>
+                <div>
+                  <strong>
+                    {selectedOrder.customer?.name ||
+                      selectedOrder.customerName ||
+                      (selectedOrder.customerId ? `User #${selectedOrder.customerId}` : 'Walk-in')}
+                  </strong>
+                </div>
               </Col>
               <Col span={12}>
-                <Text type="secondary">Cashier ID</Text>
-                <div><strong>Cashier #{selectedOrder.cashierId}</strong></div>
+                <Text type="secondary">Cashier</Text>
+                <div>
+                  <strong>
+                    {selectedOrder.cashierName ||
+                      (selectedOrder.cashierId ? `Cashier #${selectedOrder.cashierId}` : '-')}
+                  </strong>
+                </div>
               </Col>
               <Col span={12}>
                 <Text type="secondary">Status</Text>
@@ -296,7 +354,9 @@ function OrdersPage() {
               </Col>
             </Row>
 
-            <Text strong style={{ marginTop: 12 }}>Line items</Text>
+            <Text strong style={{ marginTop: 12 }}>
+              Line items
+            </Text>
             <Table
               columns={lineItemColumns}
               dataSource={selectedOrder.items || []}
@@ -327,14 +387,18 @@ function OrdersPage() {
                   paddingTop: 8,
                 }}
               >
-                <Title level={4} style={{ margin: 0 }}>Total</Title>
+                <Title level={4} style={{ margin: 0 }}>
+                  Total
+                </Title>
                 <Title level={4} style={{ margin: 0 }}>
                   ${Number(selectedOrder.total || 0).toFixed(2)}
                 </Title>
               </Flex>
             </Flex>
 
-            <Text strong style={{ marginTop: 12 }}>Payment</Text>
+            <Text strong style={{ marginTop: 12 }}>
+              Payment
+            </Text>
             <Card
               variant="borderless"
               style={{ borderRadius: 8, backgroundColor: '#fafafa' }}

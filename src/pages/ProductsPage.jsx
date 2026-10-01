@@ -1,4 +1,3 @@
-// src/pages/ProductsPage.jsx
 import { useState, useEffect } from 'react'
 import { Typography, Row, Col, Button, Tag, Flex, Card, Input, Spin, Pagination, App } from 'antd'
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
@@ -6,6 +5,7 @@ import ProductCard from '../components/ProductCard.jsx'
 import ProductModal from '../components/ProductModal.jsx'
 import {
   getProducts,
+  getCategories,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -16,18 +16,25 @@ const { Title, Text } = Typography
 function ProductsPage() {
   const { message } = App.useApp()
   const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalProducts, setTotalProducts] = useState(0)
-  const [lastpage, setLastPage] = useState(0)
 
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
 
-  const categories = ['All', 'Beverages', 'Snacks & Confectionery', 'Bakery & Pastries', 'Dairy & Eggs']
+  const loadCategories = async () => {
+    try {
+      const data = await getCategories()
+      setCategories(data)
+    } catch (error) {
+      console.error('Failed to load categories:', error)
+    }
+  }
 
   const loadProducts = async (page = 1) => {
     try {
@@ -36,13 +43,16 @@ function ProductsPage() {
       setProducts(products)
       setTotalProducts(pagination.total)
       setCurrentPage(pagination.currentPage)
-      setLastPage(pagination.lastPage)
     } catch (error) {
       message.error(error.message || 'Failed to fetch products')
     } finally {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    loadCategories()
+  }, [])
 
   useEffect(() => {
     loadProducts(currentPage)
@@ -69,7 +79,7 @@ function ProductsPage() {
         message.success('Product created successfully!')
       }
       setIsModalOpen(false)
-      loadProducts(currentPage) // Reload page after modification
+      loadProducts(currentPage)
     } catch (error) {
       message.error(error.message || 'Failed to save product')
     } finally {
@@ -88,7 +98,8 @@ function ProductsPage() {
   }
 
   const filteredProducts = products.filter((item) => {
-    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory
+    const matchesCategory =
+      selectedCategory === 'All' || item.category === selectedCategory
     const matchesSearch =
       item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.barcode && item.barcode.includes(searchQuery))
@@ -137,13 +148,29 @@ function ProductsPage() {
         style={{ borderRadius: 12, marginBottom: 20 }}
         styles={{ body: { padding: '12px 16px' } }}
       >
-        <Flex gap="small">
+        <Flex gap="small" wrap="wrap">
+          <Tag
+            key="All"
+            onClick={() => setSelectedCategory('All')}
+            style={{
+              padding: '6px 16px',
+              borderRadius: 16,
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 500,
+              backgroundColor: selectedCategory === 'All' ? '#10b981' : '#f3f4f6',
+              color: selectedCategory === 'All' ? '#ffffff' : '#4b5563',
+              border: 'none',
+            }}
+          >
+            All
+          </Tag>
           {categories.map((cat) => {
-            const isSelected = selectedCategory === cat
+            const isSelected = selectedCategory === cat.name
             return (
               <Tag
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.name)}
                 style={{
                   padding: '6px 16px',
                   borderRadius: 16,
@@ -155,7 +182,7 @@ function ProductsPage() {
                   border: 'none',
                 }}
               >
-                {cat}
+                {cat.name}
               </Tag>
             )
           })}
@@ -165,7 +192,7 @@ function ProductsPage() {
       <Spin spinning={loading}>
         <Row gutter={[16, 16]}>
           {filteredProducts.map((product) => (
-            <Col xs={24} sm={12} md={8} lg={4} key={product.id}>
+            <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
               <ProductCard
                 product={product}
                 onEdit={handleOpenEditModal}
@@ -176,11 +203,10 @@ function ProductsPage() {
         </Row>
       </Spin>
 
-      {/* Pagination Footer */}
       <Flex justify="center" style={{ marginTop: 24 }}>
         <Pagination
           current={currentPage}
-          total={lastpage}
+          total={totalProducts}
           pageSize={12}
           onChange={(page) => setCurrentPage(page)}
         />

@@ -1,16 +1,28 @@
 import { Card, Tag, Typography, Flex } from 'antd'
-import { EyeOutlined } from '@ant-design/icons'
 
 const { Title, Text } = Typography
 
 function OrderCard({ order, onView }) {
   if (!order) return null
 
+  // Customer display name resolution
+  const customerName =
+    order.customer?.name ||
+    order.customerName ||
+    (typeof order.customer === 'string' ? order.customer : 'Walk-in')
+
+  // Cashier display name resolution
+  const cashierName =
+    order.cashierName ||
+    (order.cashierId ? `Cashier #${order.cashierId}` : '-')
+
   // Status tag styling helper
   const renderStatusTag = (status) => {
     const statusMap = {
+      Completed: { color: 'success' },
       Paid: { color: 'success' },
       Refunded: { color: 'error' },
+      Cancelled: { color: 'error' },
       Pending: { color: 'warning' },
     }
     const { color } = statusMap[status] || { color: 'default' }
@@ -53,7 +65,7 @@ function OrderCard({ order, onView }) {
         {/* Header: Invoice & Status */}
         <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
           <Title level={5} style={{ margin: 0, fontWeight: 700 }}>
-            {order.invoice}
+            {order.invoiceNo || order.invoice || `ORD-${order.id}`}
           </Title>
           {renderStatusTag(order.status)}
         </Flex>
@@ -62,11 +74,11 @@ function OrderCard({ order, onView }) {
         <Flex vertical gap="xs" style={{ marginBottom: 16 }}>
           <Flex justify="space-between">
             <Text type="secondary">Customer:</Text>
-            <Text strong>{order.customer || 'Walk-in'}</Text>
+            <Text strong>{customerName}</Text>
           </Flex>
           <Flex justify="space-between">
             <Text type="secondary">Cashier:</Text>
-            <Text>{order.cashier || '-'}</Text>
+            <Text>{cashierName}</Text>
           </Flex>
         </Flex>
       </div>
