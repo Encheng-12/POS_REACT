@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Filters from "../components/Filters.jsx";
 import NewStockMovementModal from "../components/NewStockMovementModal.jsx";
 import { getStockMovements } from "../services/stockmovementapi.js";
+import { PlusOutlined } from "@ant-design/icons";
 
 function StockMovementPage() {
   const [showModal, setShowModal] = useState(false);
@@ -13,7 +14,6 @@ function StockMovementPage() {
   const [loading, setLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
-  // const [lastPage, setLastPage] = useState(1);
   const [pagination, setPagination] = useState({});
 
   const loadStockMovements = async () => {
@@ -41,65 +41,97 @@ function StockMovementPage() {
   };
 
   return (
-    <>
-      {/* Header */}
+    <div className="rounded-xl bg-white p-7">
+      {/* =========================
+          Header
+      ========================= */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Stocks</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Stocks</h1>
 
-          <p className="mt-1 text-gray-500">
+          <p className="mt-1 text-sm text-gray-500">
             Inventory movements: restocks, sales & adjustments
           </p>
         </div>
 
         <button
-          className="rounded-xl bg-green-500 px-6 py-3 font-medium text-white hover:bg-green-600"
+          className="rounded-lg bg-emerald-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-emerald-600"
           onClick={() => setShowModal(true)}
         >
           + New movement
         </button>
       </div>
 
-      {/* Filters */}
-      <Filters
-        activeFilter={activeFilter}
-        onFilterChange={handleFilterChange}
-      />
+      {/* =========================
+          Filters
+      ========================= */}
+      <div className="mb-6">
+        <Filters
+          activeFilter={activeFilter}
+          onFilterChange={handleFilterChange}
+        />
+      </div>
 
-      {/* Table */}
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+      {/* =========================
+          Table
+      ========================= */}
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         {loading ? (
-          <div className="p-6 text-center">Loading...</div>
+          <div className="py-10 text-center text-sm text-gray-500">
+            Loading...
+          </div>
         ) : stockMovements.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">
+          <div className="py-10 text-center text-sm text-gray-500">
             No stock movements found.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-gray-50 text-left">
-                  <th className="px-6 py-4">Product</th>
-                  <th className="px-6 py-4">Type</th>
-                  <th className="px-6 py-4">Quantity</th>
-                  <th className="px-6 py-4">Reference</th>
-                  <th className="px-6 py-4">Notes</th>
-                  <th className="px-6 py-4">Date</th>
+                <tr className="border-b border-gray-300 bg-gray-50 text-left">
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    Product
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    Type
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    Quantity
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    Reference
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    Notes
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-gray-900">
+                    Date
+                  </th>
                 </tr>
               </thead>
 
               <tbody>
                 {stockMovements.map((movement) => (
-                  <tr key={movement.id} className="border-b last:border-b-0">
-                    <td className="px-6 py-4 font-medium">
+                  <tr
+                    key={movement.id}
+                    className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
+                  >
+                    {/* Product */}
+                    <td className="px-6 py-4 font-medium text-gray-900">
                       {movement.productName}
                     </td>
 
+                    {/* Type */}
                     <td className="px-6 py-4">
                       <span
                         className={`rounded-full px-3 py-1 text-sm font-medium capitalize ${
                           movement.type === "in"
-                            ? "bg-green-100 text-green-700"
+                            ? "bg-emerald-100 text-emerald-700"
                             : movement.type === "out"
                               ? "bg-blue-100 text-blue-700"
                               : "bg-orange-100 text-orange-700"
@@ -109,13 +141,23 @@ function StockMovementPage() {
                       </span>
                     </td>
 
-                    <td className="px-6 py-4">{movement.quantity}</td>
+                    {/* Quantity */}
+                    <td className="px-6 py-4 text-gray-900">
+                      {movement.quantity}
+                    </td>
 
-                    <td className="px-6 py-4">{movement.reference}</td>
+                    {/* Reference */}
+                    <td className="px-6 py-4 text-gray-900">
+                      {movement.reference}
+                    </td>
 
-                    <td className="px-6 py-4">{movement.notes || "-"}</td>
+                    {/* Notes */}
+                    <td className="px-6 py-4 text-gray-600">
+                      {movement.notes || "-"}
+                    </td>
 
-                    <td className="px-6 py-4">
+                    {/* Date */}
+                    <td className="px-6 py-4 text-gray-600">
                       {movement.date
                         ? new Date(movement.date).toLocaleDateString()
                         : "-"}
@@ -124,9 +166,12 @@ function StockMovementPage() {
                 ))}
               </tbody>
             </table>
-            {/* Pagination */}
+
+            {/* =========================
+                Pagination
+            ========================= */}
             {pagination.lastPage > 1 && (
-              <div className="flex items-center justify-between border-t px-6 py-4">
+              <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
                 <p className="text-sm text-gray-500">
                   Page {pagination.currentPage} of {pagination.lastPage}
                 </p>
@@ -141,8 +186,8 @@ function StockMovementPage() {
                       onClick={() => setCurrentPage(page)}
                       className={`rounded-lg px-3 py-2 text-sm ${
                         currentPage === page
-                          ? "bg-green-500 text-white"
-                          : "border border-gray-300 hover:bg-gray-50"
+                          ? "bg-emerald-500 text-white"
+                          : "border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
                       }`}
                     >
                       {page}
@@ -155,14 +200,16 @@ function StockMovementPage() {
         )}
       </div>
 
-      {/* New Stock Movement Modal */}
+      {/* =========================
+          New Stock Movement Modal
+      ========================= */}
       {showModal && (
         <NewStockMovementModal
           onClose={() => setShowModal(false)}
           onCreated={loadStockMovements}
         />
       )}
-    </>
+    </div>
   );
 }
 

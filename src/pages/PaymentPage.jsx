@@ -20,6 +20,7 @@ function PaymentPage() {
       setPagination(result.pagination);
     } catch (error) {
       console.error("Error loading payments:", error);
+      alert(error.message);
     } finally {
       setLoading(false);
     }
@@ -59,27 +60,31 @@ function PaymentPage() {
     .reduce((total, payment) => total + Number(payment.amount || 0), 0);
 
   return (
-    <div>
+    <div className="rounded-xl bg-white p-7">
       {/* =========================
           Header
       ========================= */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Payments</h1>
+        {/* <Title level={2} style={{ margin: 0, fontWeight: 700 }}>
+          Payment Records
+        </Title> */}
 
-          <p className="mt-1 text-gray-500">
-            Monitor customer payments and transaction records
-          </p>
-        </div>
+        <p className="mt-1 text-sm text-gray-500">
+          Monitor customer payments and transaction records
+        </p>
       </div>
-      {/* Payment Filters */}
-      <div className="mb-6 flex gap-3">
+
+      {/* =========================
+          Payment Filters
+      ========================= */}
+      <div className="mb-6 flex flex-wrap gap-3">
         <button
           onClick={() => handleMethodChange("all")}
-          className={`rounded-full px-5 py-2 font-medium ${
+          className={`rounded-full px-5 py-2 text-sm font-medium transition ${
             activeFilter === "all"
-              ? "bg-green-500 text-white"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-emerald-500 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
           All
@@ -87,10 +92,10 @@ function PaymentPage() {
 
         <button
           onClick={() => handleMethodChange("cash")}
-          className={`rounded-full px-5 py-2 font-medium ${
+          className={`rounded-full px-5 py-2 text-sm font-medium transition ${
             activeFilter === "cash"
-              ? "bg-green-500 text-white"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-emerald-500 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
           Cash
@@ -98,10 +103,10 @@ function PaymentPage() {
 
         <button
           onClick={() => handleMethodChange("aba")}
-          className={`rounded-full px-5 py-2 font-medium ${
+          className={`rounded-full px-5 py-2 text-sm font-medium transition ${
             activeFilter === "aba"
-              ? "bg-green-500 text-white"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-emerald-500 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
           ABA
@@ -109,10 +114,10 @@ function PaymentPage() {
 
         <button
           onClick={() => handleMethodChange("acleda")}
-          className={`rounded-full px-5 py-2 font-medium ${
+          className={`rounded-full px-5 py-2 text-sm font-medium transition ${
             activeFilter === "acleda"
-              ? "bg-green-500 text-white"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-emerald-500 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
           ACLEDA
@@ -120,10 +125,10 @@ function PaymentPage() {
 
         <button
           onClick={() => handleMethodChange("wing")}
-          className={`rounded-full px-5 py-2 font-medium ${
+          className={`rounded-full px-5 py-2 text-sm font-medium transition ${
             activeFilter === "wing"
-              ? "bg-green-500 text-white"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-emerald-500 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
           WING
@@ -134,7 +139,7 @@ function PaymentPage() {
           Loading
       ========================= */}
       {loading ? (
-        <div className="mt-10 text-center text-gray-500">
+        <div className="py-10 text-center text-sm text-gray-500">
           Loading payments...
         </div>
       ) : (
@@ -142,7 +147,7 @@ function PaymentPage() {
           {/* =========================
               Summary Cards
           ========================= */}
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             {/* Total Payments */}
             <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
               <p className="text-sm text-gray-500">Total Payments</p>
@@ -185,15 +190,32 @@ function PaymentPage() {
           ========================= */}
           <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-gray-50 text-left">
-                    <th className="px-6 py-4">Payment</th>
-                    <th className="px-6 py-4">Order</th>
-                    <th className="px-6 py-4">Method</th>
-                    <th className="px-6 py-4">Amount</th>
-                    <th className="px-6 py-4">Reference</th>
-                    <th className="px-6 py-4">Paid At</th>
+                  <tr className="border-b border-gray-300 bg-gray-50 text-left">
+                    <th className="px-6 py-4 font-semibold text-gray-900">
+                      Payment
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-900">
+                      Order
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-900">
+                      Method
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-900">
+                      Amount
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-900">
+                      Reference
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-900">
+                      Paid At
+                    </th>
                   </tr>
                 </thead>
 
@@ -211,13 +233,15 @@ function PaymentPage() {
                     payments.map((payment) => (
                       <tr
                         key={payment.id}
-                        className="border-b last:border-b-0 hover:bg-gray-50"
+                        className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
                       >
                         {/* Payment ID */}
-                        <td className="px-6 py-4 font-medium">#{payment.id}</td>
+                        <td className="px-6 py-4 font-medium text-gray-900">
+                          #{payment.id}
+                        </td>
 
                         {/* Order */}
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 text-gray-900">
                           {payment.order?.invoice_no
                             ? payment.order.invoice_no
                             : `Order #${payment.orderId}`}
@@ -228,7 +252,7 @@ function PaymentPage() {
                           <span
                             className={`rounded-full px-3 py-1 text-sm font-medium uppercase ${
                               payment.paymentMethod === "cash"
-                                ? "bg-green-100 text-green-700"
+                                ? "bg-emerald-100 text-emerald-700"
                                 : payment.paymentMethod === "aba"
                                   ? "bg-blue-100 text-blue-700"
                                   : payment.paymentMethod === "acleda"
@@ -243,7 +267,7 @@ function PaymentPage() {
                         </td>
 
                         {/* Amount */}
-                        <td className="px-6 py-4 font-semibold">
+                        <td className="px-6 py-4 font-semibold text-gray-900">
                           ${Number(payment.amount).toFixed(2)}
                         </td>
 
@@ -268,7 +292,7 @@ function PaymentPage() {
                   Pagination
               ========================= */}
               {pagination.lastPage > 1 && (
-                <div className="flex items-center justify-between border-t px-6 py-4">
+                <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
                   <p className="text-sm text-gray-500">
                     Page {pagination.currentPage} of {pagination.lastPage}
                   </p>
@@ -283,8 +307,8 @@ function PaymentPage() {
                         onClick={() => setCurrentPage(page)}
                         className={`rounded-lg px-3 py-2 text-sm ${
                           currentPage === page
-                            ? "bg-green-500 text-white"
-                            : "border border-gray-300 hover:bg-gray-50"
+                            ? "bg-emerald-500 text-white"
+                            : "border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
                         }`}
                       >
                         {page}
