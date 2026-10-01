@@ -31,7 +31,7 @@ const mapProductData = (item) => ({
 const preparePayload = (formValues) => ({
   name: formValues.name,
   barcode: formValues.barcode || '',
-  category_id: Number(formValues.cid || formValues.category_id || 1),
+  cid: Number(formValues.cid || formValues.category_id),
   cost_price: Number(formValues.costPrice ?? formValues.cost_price ?? 0),
   selling_price: Number(formValues.sellingPrice ?? formValues.selling_price ?? 0),
   stock_quantity: Number(formValues.quantity ?? 0),
