@@ -1,16 +1,28 @@
 const API_BASE = import.meta.env.VITE_API_URL
 const ORDERS_URL = `${API_BASE}/orders`
+const PRODUCTS_URL = `${API_BASE}/products`
+const ORDER_PRODUCTS_URL = `${API_BASE}/order_product`
 const USERS_URL = `${API_BASE}/users`
 
-// Helper to fetch user details by ID if missing from order payload
+// Helper to prepare common request headers
+const getHeaders = () => {
+  const token = localStorage.getItem('token')
+  return {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
+}
+
+// ==========================================
+// USER API HANDLERS
+// ==========================================
+
 export const getUserById = async (userId) => {
   if (!userId) return null
   try {
     const response = await fetch(`${USERS_URL}/${userId}`, {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
+      headers: getHeaders(),
     })
     if (!response.ok) return null
     const result = await response.json()
@@ -21,17 +33,63 @@ export const getUserById = async (userId) => {
   }
 }
 
-// Helper to map order items to clean UI standard
-const mapOrderItem = (item) => ({
+// ==========================================
+// ORDER-PRODUCT (PIVOT) MAPPERS & HANDLERS
+// ==========================================
+
+export const mapOrderProductItem = (item) => ({
   id: item.id,
-  product: item.product_name || item.product?.name || item.product || 'Item',
-  qty: item.quantity || item.qty || 1,
-  unitPrice: Number(item.unit_price || item.unitPrice || 0),
+  orderId: item.order_id,
+  productId: item.product_id,
+  productName: item.products?.name || item.product?.name || `Product #${item.product_id}`,
+  quantity: Number(item.quantity || 1),
+  unitPrice: Number(item.unit_price || 0),
   discount: Number(item.discount || 0),
-  subtotal: Number(item.subtotal || 0),
+  amount: Number(item.amount || item.subtotal || 0),
+  createdAt: item.created_at,
+  updatedAt: item.updated_at,
 })
 
-// Helper function to map Laravel order JSON format to React UI format
+export const getOrderProducts = async ({ page = 1, perPage = 100, orderId = null } = {}) => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    per_page: perPage.toString(),
+  })
+
+  // Append order_id query param so Laravel filters by this specific order
+  if (orderId) {
+    params.append('order_id', orderId.toString())
+  }
+
+  const response = await fetch(`${ORDER_PRODUCTS_URL}?${params.toString()}`, {
+    headers: getHeaders(),
+  })
+
+  if (!response.ok) throw new Error('Failed to fetch order-product relations')
+
+  const result = await response.json()
+
+  // Filter client-side as a backup safeguard if backend returns all items
+  const rawItems = result.data || []
+  const filteredItems = orderId
+    ? rawItems.filter((item) => Number(item.order_id) === Number(orderId))
+    : rawItems
+
+  return {
+    orderProducts: filteredItems.map(mapOrderProductItem),
+    pagination: {
+      currentPage: result.current_page || page,
+      lastPage: result.last_page || 1,
+      pageSize: result.per_page || perPage,
+      total: result.total || 0,
+    },
+  }
+}
+
+// ==========================================
+// ORDER API HANDLERS
+// ==========================================
+
 export const mapOrderData = (item) => {
   const subtotal = Number(item.subtotal || 0)
   const tax = Number(item.tax || 0)
@@ -54,15 +112,17 @@ export const mapOrderData = (item) => {
       : 'Pending',
     createdAt: item.created_at,
     updatedAt: item.updated_at,
-    items: Array.isArray(item.items) ? item.items.map(mapOrderItem) : [],
+    items: Array.isArray(item.items)
+      ? item.items.map(mapOrderProductItem)
+      : Array.isArray(item.order_products)
+      ? item.order_products.map(mapOrderProductItem)
+      : [],
     customer: item.customer
       ? {
           id: item.customer.id,
           name: item.customer.name,
           email: item.customer.email,
           phoneNumber: item.customer.phone_number || '',
-          role: item.customer.role,
-          status: item.customer.status,
         }
       : null,
     payment: item.payment || {
@@ -73,41 +133,20 @@ export const mapOrderData = (item) => {
   }
 }
 
-// Helper function to prepare payload for POST / PUT
-const preparePayload = (formValues) => ({
-  cashier_id: formValues.cashierId,
-  customer_id: formValues.customerId,
-  invoice_no: formValues.invoiceNo,
-  subtotal: formValues.subtotal,
-  tax: formValues.tax || 0,
-  discount: formValues.discount || 0,
-  status: formValues.status?.toLowerCase() || 'pending',
-})
-
 export const getOrders = async ({ page = 1, perPage = 10, search = '', status = 'All' } = {}) => {
   const params = new URLSearchParams({
     page: page.toString(),
     per_page: perPage.toString(),
   })
 
-  if (search.trim()) {
-    params.append('search', search.trim())
-  }
-
-  if (status && status !== 'All') {
-    params.append('status', status.toLowerCase())
-  }
+  if (search.trim()) params.append('search', search.trim())
+  if (status && status !== 'All') params.append('status', status.toLowerCase())
 
   const response = await fetch(`${ORDERS_URL}?${params.toString()}`, {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
+    headers: getHeaders(),
   })
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch orders')
-  }
+  if (!response.ok) throw new Error('Failed to fetch orders')
 
   const result = await response.json()
 
@@ -120,55 +159,4 @@ export const getOrders = async ({ page = 1, perPage = 10, search = '', status = 
       total: result.total || 0,
     },
   }
-}
-
-export const createOrder = async (orderData) => {
-  const response = await fetch(ORDERS_URL, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(preparePayload(orderData)),
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to create order')
-  }
-
-  const result = await response.json()
-  return mapOrderData(result.data || result)
-}
-
-export const updateOrder = async (id, orderData) => {
-  const response = await fetch(`${ORDERS_URL}/${id}`, {
-    method: 'PUT',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(preparePayload(orderData)),
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to update order')
-  }
-
-  const result = await response.json()
-  return mapOrderData(result.data || result)
-}
-
-export const deleteOrder = async (id) => {
-  const response = await fetch(`${ORDERS_URL}/${id}`, {
-    method: 'DELETE',
-    headers: {
-      Accept: 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to delete order')
-  }
-
-  return true
 }

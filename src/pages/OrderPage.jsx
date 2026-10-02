@@ -22,7 +22,7 @@ import {
   UnorderedListOutlined,
 } from '@ant-design/icons'
 import OrderCard from '../components/OrderCard.jsx'
-import { getOrders, getUserById } from '../services/orderapi.js'
+import { getOrders, getUserById, getOrderProducts } from '../services/orderapi.js'
 
 const { Title, Text } = Typography
 
@@ -33,6 +33,7 @@ function OrdersPage() {
   // State Management
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [drawerLoading, setDrawerLoading] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [viewMode, setViewMode] = useState('table') // 'table' | 'cards'
@@ -42,7 +43,7 @@ function OrdersPage() {
   const [pageSize, setPageSize] = useState(10)
   const [totalOrders, setTotalOrders] = useState(0)
 
-  // Fetch orders from API
+  // Fetch orders list
   const loadOrders = useCallback(async () => {
     try {
       setLoading(true)
@@ -72,11 +73,24 @@ function OrdersPage() {
     }
   }
 
+  // Handle View Order (Fetches line items & user details dynamically)
   const handleViewOrder = async (order) => {
-    setSelectedOrder(order)
-    setDrawerOpen(true)
+  setSelectedOrder(order)
+  setDrawerOpen(true)
+  setDrawerLoading(true)
 
-    // Dynamically fetch customer details if customer ID exists but name is missing
+  try {
+    // 1. Pass orderId to fetch ONLY items for this order ID
+    const { orderProducts } = await getOrderProducts({ orderId: order.id, perPage: 100 })
+    
+    // 2. Attach only filtered line items to selectedOrder state
+    setSelectedOrder((prev) =>
+      prev && prev.id === order.id
+        ? { ...prev, items: orderProducts }
+        : prev
+    )
+
+    // Fetch customer details if name is missing
     if (order.customerId && !order.customer?.name) {
       const user = await getUserById(order.customerId)
       if (user) {
@@ -88,7 +102,7 @@ function OrdersPage() {
       }
     }
 
-    // Dynamically fetch cashier details if cashier ID exists but name is missing
+    // Fetch cashier details if name is missing
     if (order.cashierId && !order.cashierName) {
       const cashier = await getUserById(order.cashierId)
       if (cashier) {
@@ -99,6 +113,11 @@ function OrdersPage() {
         )
       }
     }
+  } catch (error) {
+    message.error('Failed to load order item details')
+  } finally {
+    setDrawerLoading(false)
+  }
   }
 
   const handleCloseDrawer = () => {
@@ -106,7 +125,7 @@ function OrdersPage() {
     setSelectedOrder(null)
   }
 
-  // Color map helper for order statuses
+  // Status tag helper
   const renderStatusTag = (status) => {
     const statusMap = {
       Completed: { color: 'success' },
@@ -126,12 +145,12 @@ function OrdersPage() {
           fontWeight: 500,
         }}
       >
-        {status}
+        {status || 'Pending'}
       </Tag>
     )
   }
 
-  // Table Columns Definition mapping to API fields
+  // Table Columns Definition
   const columns = [
     {
       title: 'Invoice',
@@ -148,10 +167,12 @@ function OrdersPage() {
       dataIndex: 'customer',
       key: 'customer',
       render: (customer, record) =>
-        customer?.name || record.customerName || (record.customerId ? `User #${record.customerId}` : 'Walk-in'),
+        customer?.name ||
+        record.customerName ||
+        (record.customerId ? `User #${record.customerId}` : 'Walk-in'),
     },
     {
-      title: 'Cashier ID',
+      title: 'Cashier',
       dataIndex: 'cashierId',
       key: 'cashierId',
       render: (id, record) =>
@@ -167,19 +188,22 @@ function OrdersPage() {
       title: 'Discount',
       dataIndex: 'discount',
       key: 'discount',
-      render: (val) => `$${Number(val || 0).toFixed(2)}`,
-    },
-    {
-      title: 'Tax',
-      dataIndex: 'tax',
-      key: 'tax',
-      render: (val) => `$${Number(val || 0).toFixed(2)}`,
+      render: (val) =>
+        Number(val) > 0 ? (
+          <Text type="danger">-${Number(val).toFixed(2)}</Text>
+        ) : (
+          '$0.00'
+        ),
     },
     {
       title: 'Total',
       dataIndex: 'total',
       key: 'total',
-      render: (val) => <strong>${Number(val || 0).toFixed(2)}</strong>,
+      render: (val, record) => (
+        <strong>
+          ${Number(val || record.subtotal || 0).toFixed(2)}
+        </strong>
+      ),
     },
     {
       title: 'Status',
@@ -203,27 +227,41 @@ function OrdersPage() {
     },
   ]
 
-  // Drawer Line Items Columns
+  // Drawer Line Items Table Columns
   const lineItemColumns = [
-    { title: 'Product', dataIndex: 'product', key: 'product' },
-    { title: 'Qty', dataIndex: 'qty', key: 'qty' },
     {
-      title: 'Unit',
+      title: 'Product',
+      dataIndex: 'productName',
+      key: 'productName',
+      render: (text, record) =>
+        text || record.product?.name || `Product #${record.productId || record.id}`,
+    },
+    {
+      title: 'Qty',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      render: (val, record) => val || record.qty || 1,
+    },
+    {
+      title: 'Unit Price',
       dataIndex: 'unitPrice',
       key: 'unitPrice',
       render: (val) => `$${Number(val || 0).toFixed(2)}`,
     },
     {
-      title: 'Disc.',
+      title: 'Discount',
       dataIndex: 'discount',
       key: 'discount',
       render: (val) => `$${Number(val || 0).toFixed(2)}`,
     },
     {
-      title: 'Subtotal',
-      dataIndex: 'subtotal',
-      key: 'subtotal',
-      render: (val) => `$${Number(val || 0).toFixed(2)}`,
+      title: 'Subtotal / Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (val, record) => {
+        const amount = val || record.subtotal || 0
+        return <strong>${Number(amount).toFixed(2)}</strong>
+      },
     },
   ]
 
@@ -264,7 +302,7 @@ function OrdersPage() {
         </Flex>
       </Flex>
 
-      {/* Main Content Layout (Table or Cards Grid) */}
+      {/* Main Content Layout */}
       <Spin spinning={loading}>
         {viewMode === 'table' ? (
           <Card
@@ -290,7 +328,7 @@ function OrdersPage() {
         )}
       </Spin>
 
-      {/* Dynamic API Pagination Footer */}
+      {/* Dynamic Pagination */}
       {totalOrders > pageSize && (
         <Flex justify="center" style={{ marginTop: 24 }}>
           <Pagination
@@ -313,113 +351,117 @@ function OrdersPage() {
           </Title>
         }
         placement="right"
-        style={{ maxWidth: '100vw' }}
+        size={500}
         styles={{ body: { padding: '20px' } }}
         onClose={handleCloseDrawer}
         open={drawerOpen}
       >
         {selectedOrder && (
-          <Flex vertical gap="middle">
-            <Row gutter={[16, 16]}>
-              <Col span={12}>
-                <Text type="secondary">Customer</Text>
-                <div>
-                  <strong>
-                    {selectedOrder.customer?.name ||
-                      selectedOrder.customerName ||
-                      (selectedOrder.customerId ? `User #${selectedOrder.customerId}` : 'Walk-in')}
-                  </strong>
-                </div>
-              </Col>
-              <Col span={12}>
-                <Text type="secondary">Cashier</Text>
-                <div>
-                  <strong>
-                    {selectedOrder.cashierName ||
-                      (selectedOrder.cashierId ? `Cashier #${selectedOrder.cashierId}` : '-')}
-                  </strong>
-                </div>
-              </Col>
-              <Col span={12}>
-                <Text type="secondary">Status</Text>
-                <div>{renderStatusTag(selectedOrder.status)}</div>
-              </Col>
-              <Col span={12}>
-                <Text type="secondary">Total</Text>
-                <div>
+          <Spin spinning={drawerLoading}>
+            <Flex vertical gap="middle">
+              <Row gutter={[16, 16]}>
+                <Col span={12}>
+                  <Text type="secondary">Customer</Text>
+                  <div>
+                    <strong>
+                      {selectedOrder.customer?.name ||
+                        selectedOrder.customerName ||
+                        (selectedOrder.customerId ? `User #${selectedOrder.customerId}` : 'Walk-in')}
+                    </strong>
+                  </div>
+                </Col>
+                <Col span={12}>
+                  <Text type="secondary">Cashier</Text>
+                  <div>
+                    <strong>
+                      {selectedOrder.cashierName ||
+                        (selectedOrder.cashierId ? `Cashier #${selectedOrder.cashierId}` : '-')}
+                    </strong>
+                  </div>
+                </Col>
+                <Col span={12}>
+                  <Text type="secondary">Status</Text>
+                  <div>{renderStatusTag(selectedOrder.status)}</div>
+                </Col>
+                <Col span={12}>
+                  <Text type="secondary">Total</Text>
+                  <div>
+                    <Title level={4} style={{ margin: 0, color: '#10b981' }}>
+                      ${Number(selectedOrder.total || selectedOrder.subtotal || 0).toFixed(2)}
+                    </Title>
+                  </div>
+                </Col>
+              </Row>
+
+              <Text strong style={{ marginTop: 12 }}>
+                Line items
+              </Text>
+              <Table
+                columns={lineItemColumns}
+                dataSource={selectedOrder.items || []}
+                rowKey={(item) => item.id }
+                pagination={false}
+                size="small"
+              />
+
+              <Flex vertical gap="small" style={{ marginTop: 8 }}>
+                <Flex justify="space-between">
+                  <Text type="secondary">Subtotal</Text>
+                  <Text>${Number(selectedOrder.subtotal || 0).toFixed(2)}</Text>
+                </Flex>
+                <Flex justify="space-between">
+                  <Text type="secondary">Discount</Text>
+                  <Text type="danger">
+                    -${Number(selectedOrder.discount || 0).toFixed(2)}
+                  </Text>
+                </Flex>
+                <Flex justify="space-between">
+                  <Text type="secondary">Tax</Text>
+                  <Text>${Number(selectedOrder.tax || 0).toFixed(2)}</Text>
+                </Flex>
+                <Flex
+                  justify="space-between"
+                  align="center"
+                  style={{
+                    marginTop: 8,
+                    borderTop: '1px dashed #d9d9d9',
+                    paddingTop: 8,
+                  }}
+                >
                   <Title level={4} style={{ margin: 0 }}>
-                    ${Number(selectedOrder.total || 0).toFixed(2)}
+                    Total
                   </Title>
-                </div>
-              </Col>
-            </Row>
+                  <Title level={4} style={{ margin: 0, color: '#10b981' }}>
+                    ${Number(selectedOrder.total || selectedOrder.subtotal || 0).toFixed(2)}
+                  </Title>
+                </Flex>
+              </Flex>
 
-            <Text strong style={{ marginTop: 12 }}>
-              Line items
-            </Text>
-            <Table
-              columns={lineItemColumns}
-              dataSource={selectedOrder.items || []}
-              rowKey={(item, index) => item.id || index}
-              pagination={false}
-              size="small"
-            />
-
-            <Flex vertical gap="small" style={{ marginTop: 8 }}>
-              <Flex justify="space-between">
-                <Text type="secondary">Subtotal</Text>
-                <Text>${Number(selectedOrder.subtotal || 0).toFixed(2)}</Text>
-              </Flex>
-              <Flex justify="space-between">
-                <Text type="secondary">Discount</Text>
-                <Text>-${Number(selectedOrder.discount || 0).toFixed(2)}</Text>
-              </Flex>
-              <Flex justify="space-between">
-                <Text type="secondary">Tax</Text>
-                <Text>${Number(selectedOrder.tax || 0).toFixed(2)}</Text>
-              </Flex>
-              <Flex
-                justify="space-between"
-                align="center"
-                style={{
-                  marginTop: 8,
-                  borderTop: '1px dashed #d9d9d9',
-                  paddingTop: 8,
-                }}
+              <Text strong style={{ marginTop: 12 }}>
+                Payment
+              </Text>
+              <Card
+                variant="borderless"
+                style={{ borderRadius: 8, backgroundColor: '#fafafa' }}
+                styles={{ body: { padding: 16 } }}
               >
-                <Title level={4} style={{ margin: 0 }}>
-                  Total
-                </Title>
-                <Title level={4} style={{ margin: 0 }}>
-                  ${Number(selectedOrder.total || 0).toFixed(2)}
-                </Title>
-              </Flex>
+                <Flex vertical gap="small">
+                  <Flex justify="space-between">
+                    <Text type="secondary">Method</Text>
+                    <Text>{selectedOrder.payment?.method || 'Cash'}</Text>
+                  </Flex>
+                  <Flex justify="space-between">
+                    <Text type="secondary">Reference no.</Text>
+                    <Text>{selectedOrder.payment?.referenceNo || '-'}</Text>
+                  </Flex>
+                  <Flex justify="space-between">
+                    <Text type="secondary">Paid at</Text>
+                    <Text>{selectedOrder.payment?.paidAt || selectedOrder.createdAt || '-'}</Text>
+                  </Flex>
+                </Flex>
+              </Card>
             </Flex>
-
-            <Text strong style={{ marginTop: 12 }}>
-              Payment
-            </Text>
-            <Card
-              variant="borderless"
-              style={{ borderRadius: 8, backgroundColor: '#fafafa' }}
-              styles={{ body: { padding: 16 } }}
-            >
-              <Flex vertical gap="small">
-                <Flex justify="space-between">
-                  <Text type="secondary">Method</Text>
-                  <Text>{selectedOrder.payment?.method || 'Cash'}</Text>
-                </Flex>
-                <Flex justify="space-between">
-                  <Text type="secondary">Reference no.</Text>
-                  <Text>{selectedOrder.payment?.referenceNo || '-'}</Text>
-                </Flex>
-                <Flex justify="space-between">
-                  <Text type="secondary">Paid at</Text>
-                  <Text>{selectedOrder.payment?.paidAt || '-'}</Text>
-                </Flex>
-              </Flex>
-            </Card>
-          </Flex>
+          </Spin>
         )}
       </Drawer>
     </div>
