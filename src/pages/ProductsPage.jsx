@@ -30,10 +30,12 @@ function ProductsPage() {
   const loadCategories = async () => {
     try {
       const data = await getCategories()
+      console.log(data)
       setCategories(data)
     } catch (error) {
       console.error('Failed to load categories:', error)
     }
+    
   }
 
   const loadProducts = async (page = 1) => {
@@ -145,10 +147,27 @@ function ProductsPage() {
 
       <Card
         variant="borderless"
-        style={{ borderRadius: 12, marginBottom: 20 }}
-        styles={{ body: { padding: '12px 16px' } }}
+        style={{
+          borderRadius: 12,
+          marginBottom: 20,
+          width: '100%',
+          height: 'auto',
+        }}
+        styles={{
+          body: {
+            padding: '16px',
+            height: 'auto',
+          },
+        }}
       >
-        <Flex gap="small" wrap="wrap">
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '8px 10px',
+            alignItems: 'center',
+          }}
+        >
           <Tag
             key="All"
             onClick={() => setSelectedCategory('All')}
@@ -161,6 +180,9 @@ function ProductsPage() {
               backgroundColor: selectedCategory === 'All' ? '#10b981' : '#f3f4f6',
               color: selectedCategory === 'All' ? '#ffffff' : '#4b5563',
               border: 'none',
+              margin: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
             }}
           >
             All
@@ -180,13 +202,16 @@ function ProductsPage() {
                   backgroundColor: isSelected ? '#10b981' : '#f3f4f6',
                   color: isSelected ? '#ffffff' : '#4b5563',
                   border: 'none',
+                  margin: 0,
+                  display: 'inline-flex',
+                  alignItems: 'center',
                 }}
               >
                 {cat.name}
               </Tag>
             )
           })}
-        </Flex>
+        </div>
       </Card>
 
       <Spin spinning={loading}>

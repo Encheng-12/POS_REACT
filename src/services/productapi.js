@@ -3,8 +3,8 @@ const apiurl = import.meta.env.VITE_API_URL
 const API_URL = apiurl + '/products'
 const CATEGORY_API_URL = apiurl + '/categories'
 
-export const getCategories = async () => {
-  const response = await fetch(CATEGORY_API_URL, {
+export const getCategories = async (page = 0) => {
+  const response = await fetch(`${CATEGORY_API_URL}?per_page=${page}`, {
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',

@@ -14,6 +14,31 @@ const getHeaders = () => {
   }
 }
 
+// Helper to calculate summary amounts dynamically from line items
+export const calculateOrderTotals = (items = [], taxRate = 0) => {
+  const { subtotal, discount } = items.reduce(
+    (acc, item) => {
+      const itemSubtotal = Number(item.quantity || item.qty || 0) * Number(item.unitPrice || item.unit_price || 0)
+      const itemDiscount = Number(item.discount || 0)
+      
+      acc.subtotal += itemSubtotal
+      acc.discount += itemDiscount
+      return acc
+    },
+    { subtotal: 0, discount: 0 }
+  )
+
+  const tax = Number(taxRate || 0)
+  const total = subtotal - discount + tax
+
+  return {
+    subtotal,
+    discount,
+    tax,
+    total: Math.max(0, total), // Ensure total doesn't go below zero
+  }
+}
+
 // ==========================================
 // USER API HANDLERS
 // ==========================================
