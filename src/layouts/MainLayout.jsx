@@ -11,7 +11,7 @@ function MainLayout() {
   const location = useLocation();
 
   const breadcrumbMap = {
-    "/": ["Overview"],
+    "/home": ["Overview"],
     "/products": ["Products"],
     "/users": ["Users"],
     "/add-product": ["Add Product"],

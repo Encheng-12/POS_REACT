@@ -16,6 +16,7 @@ import OrderPage from "./pages/OrderPage.jsx";
 import CategoryPage from "./pages/CategoryPage.jsx";
 import StockMovementPage from "./pages/StockMovementPage.jsx";
 import PaymentPage from "./pages/PaymentPage.jsx";
+import AuthPage from "./pages/AuthPage.jsx";
 
 function App() {
   // State is data that can change while the app is open.
@@ -38,9 +39,10 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/" element={<AuthPage />}></Route>
       {/* Main / Admin Layout with Sidebar */}
       <Route element={<MainLayout />}>
-        <Route path="/" element={<HomePage products={products} />} />
+        <Route path="/home" element={<HomePage products={products} />} />
         <Route
           path="/products"
           element={<ProductsPage products={products} />}

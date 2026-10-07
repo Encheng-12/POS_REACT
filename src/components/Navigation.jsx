@@ -18,7 +18,7 @@ function Navigation({ isCollapsed }) {
 
   const menuItems = [
     {
-      key: "/",
+      key: "/home",
       icon: <HomeOutlined />,
       label: "Overview",
     },
@@ -68,7 +68,7 @@ function Navigation({ isCollapsed }) {
     <div className="nav-container">
       <div
         className="brand"
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/home")}
         style={{ cursor: "pointer" }}
       >
         {/* <img
