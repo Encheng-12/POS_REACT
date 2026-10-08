@@ -39,8 +39,8 @@ function Navigation({ isCollapsed }) {
     },
     {
       key: 'orderlayout',
-      icon: <ShoppingCartOutlined />,
-      label: "Type of Order",
+      icon: <span style={{color: "#000"}}><ShoppingCartOutlined /></span>,
+      label: <span style={{color: "#000"}}>Type of Order</span>,
       children: [
         {
           key: '/orderlayout/orders',
