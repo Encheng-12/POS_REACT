@@ -19,19 +19,12 @@ const { Title, Text, Link } = Typography
  * tab-like switch under the heading. Left panel carries the brand;
  * right panel holds the form. Collapses to a single column on mobile.
  */
-export default function AuthPage() {
-  const { message } = App.useApp()
-  const [mode, setMode] = useState('login') // 'login' | 'signup'
-  const [loading, setLoading] = useState(false)
-  const [form] = Form.useForm()
+// Make sure to uncomment this near the top of your file:
+const apiurl = import.meta.env.VITE_API_URL
 
-  const switchMode = (next) => {
-    setMode(next)
-    form.resetFields()
-  }
-
-  const handleSubmit = async (values) => {
-
+const handleSubmit = async (values) => {
+  setLoading(true)
+  try {
     let data
 
     if (mode === 'login') {
@@ -52,43 +45,28 @@ export default function AuthPage() {
 
       if (!res.ok) throw new Error('Signup failed')
       data = await res.json()
-}
-    // setLoading(true)
-    // try {
-    //   const endpoint = mode === 'login' ? '/login' : '/signup'
-    //   const payload =
-    //     mode === 'login'
-    //       ? { email: values.email, password: values.password }
-    //       : {
-    //           name: values.name,
-    //           email: values.email,
-    //           password: values.password,
-    //         }
+    }
 
-    //   const res = await fetch(apiurl + endpoint, {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(payload),
-    //   })
+    // Save token if returned by API
+    if (data?.token) {
+      localStorage.setItem('token', data.token)
+    }
 
-    //   if (!res.ok) throw new Error('Request failed')
-    //   const data = await res.json()
+    message.success(mode === 'login' ? 'Welcome back!' : "Account created — you're in!")
 
-    //   if (data?.token) localStorage.setItem('token', data.token)
-    //   message.success(mode === 'login' ? 'Welcome back!' : 'Account created — you\'re in!')
-
-    //   window.location.href = '/home'
-    // } catch (error) {
-    //   console.error('Auth failed:', error)
-    //   message.error(
-    //     mode === 'login'
-    //       ? 'Invalid email or password.'
-    //       : 'Could not create your account. That email may already be in use.'
-    //   )
-    // } finally {
-    //   setLoading(false)
-    // }
+    // Redirect user upon success
+    window.location.href = '/home'
+  } catch (error) {
+    console.error('Auth failed:', error)
+    message.error(
+      mode === 'login'
+        ? 'Invalid email or password.'
+        : 'Could not create your account. That email may already be in use.'
+    )
+  } finally {
+    setLoading(false)
   }
+
 
   return (
     <div style={styles.page}>
