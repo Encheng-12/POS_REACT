@@ -18,7 +18,7 @@ function HomePage({ products }) {
 
   return (
     <div className="home-page">
-      <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+      <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
         <div>
           <Tag color="processing" icon={<ThunderboltOutlined />} style={{ marginBottom: 12 }}>
             React Fundamentals + Ant Design
@@ -46,7 +46,7 @@ function HomePage({ products }) {
               <Statistic
                 title={<Text strong style={{ color: '#389e0d' }}>In Stock</Text>}
                 value={inStockCount}
-                valueStyle={{ color: '#389e0d' }}
+                styles={{ color: '#389e0d' }}
                 prefix={<CheckCircleOutlined />}
               />
             </Card>
@@ -56,7 +56,7 @@ function HomePage({ products }) {
               <Statistic
                 title={<Text strong style={{ color: '#cf1322' }}>Out of Stock</Text>}
                 value={outOfStockCount}
-                valueStyle={{ color: '#cf1322' }}
+                styles={{ color: '#cf1322' }}
                 prefix={<CloseCircleOutlined />}
               />
             </Card>
