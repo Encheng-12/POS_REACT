@@ -17,6 +17,8 @@ import CategoryPage from "./pages/CategoryPage.jsx";
 import StockMovementPage from "./pages/StockMovementPage.jsx";
 import PaymentPage from "./pages/PaymentPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
+import ManualOrderPage from "./pages/ManualOrderPage.jsx"
+import OrderLayout from "./pages/OrderLayout.jsx"
 
 function App() {
   // State is data that can change while the app is open.
@@ -54,8 +56,13 @@ function App() {
         />
         <Route path="/stock-movement" element={<StockMovementPage />} />
         <Route path="/payments" element={<PaymentPage products={products} />} />
-        <Route path="/orders" element={<OrderPage orders={orders}/>} />
+
+        <Route path="/orderlayout" element = {<OrderLayout/>}>
+          <Route path="orders" element={<OrderPage />} />
+          <Route path="manual-orders" element={<ManualOrderPage/>}/>
+        </Route>
         <Route path="/users" element={<UserPage />} />
+
         <Route path="/team" element={<TeamLayout />}>
           <Route
             index
@@ -64,6 +71,7 @@ function App() {
           <Route path="team-1" element={<TeamOnePage />} />
           <Route path="team-2" element={<TeamTwoPage />} />
         </Route>
+
         <Route path="*" element={<NotFoundPage />} />
       </Route>
 
