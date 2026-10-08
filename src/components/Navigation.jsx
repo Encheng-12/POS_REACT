@@ -38,10 +38,23 @@ function Navigation({ isCollapsed }) {
       label: "Categories",
     },
     {
-      key: '/orders',
+      key: 'orderlayout',
       icon: <ShoppingCartOutlined />,
-      label: "Order",
+      label: "Type of Order",
+      children: [
+        {
+          key: '/orderlayout/orders',
+          icon: <ShoppingCartOutlined />,
+          label: "Order",
+        },
+        {
+          key: '/orderlayout/manual-orders',
+          icon: <ShoppingCartOutlined />,
+          label: "Manual Order",
+        },
+      ],
     },
+
     {
       key: '/payments',
       icon: <ShoppingCartOutlined />,
