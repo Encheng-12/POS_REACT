@@ -55,7 +55,7 @@ function CategoryTable() {
       const sortField = sorter.field || ''
       const sortOrder = sorter.order === 'ascend' ? 'asc' : sorter.order === 'descend' ? 'desc' : ''
 
-      const params = new URLSearchParams({ skip, limit: pageSize })
+      const params = new URLSearchParams({ page, perpage: pageSize })
       if (sortField) {
         params.set('sortby', sortField)
         params.set('order', sortOrder)
