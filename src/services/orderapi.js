@@ -1,7 +1,7 @@
 const API_BASE = import.meta.env.VITE_API_URL
 const ORDERS_URL = `${API_BASE}/orders`
 const PRODUCTS_URL = `${API_BASE}/products`
-const ORDER_PRODUCTS_URL = `${API_BASE}/order_product`
+const ORDER_PRODUCTS_URL = `${API_BASE}/orderproduct`
 const USERS_URL = `${API_BASE}/users`
 
 // Helper to prepare common request headers

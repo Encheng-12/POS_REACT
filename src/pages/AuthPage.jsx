@@ -285,7 +285,7 @@ export default function AuthPage() {
                 loading={loading}
                 block
                 icon={<ArrowRightOutlined />}
-                iconPosition="end"
+                iconPlacement="end"
                 style={{
                   background: "#22C55E",
                   borderColor: "#22C55E",
