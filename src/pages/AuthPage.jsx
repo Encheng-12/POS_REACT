@@ -9,24 +9,14 @@ import {
 } from "@ant-design/icons";
 import { login } from "../services/login.js";
 import { useNavigate } from "react-router";
+
 const { Title, Text, Link } = Typography;
-// const apiurl = import.meta.env.VITE_API_URL
-
-/**
- * ItemPOS — Login / Sign up
- *
- * Single component, two modes ('login' | 'signup') toggled with the
- * tab-like switch under the heading. Left panel carries the brand;
- * right panel holds the form. Collapses to a single column on mobile.
- */
-// Make sure to uncomment this near the top of your file:
 const apiurl = import.meta.env.VITE_API_URL;
-
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const { message } = App.useApp();
-  const [mode, setMode] = useState("login"); // 'login' | 'signup'
+  const [mode, setMode] = useState("login");
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
@@ -40,19 +30,30 @@ export default function AuthPage() {
 
     try {
       if (mode === "login") {
-        // 1. Call login API
         const res = await login({
           email: values.email,
           password: values.password,
         });
 
-        // 2. Check if login was successful (depending on what your login() function returns)
         if (res) {
           message.success("Login successful!");
-          navigate("/home"); // Redirect to Overview page
+
+          // Extract user and role from response
+          const user = res.user || res.data || res;
+          const role = (user.role || res.role || "cashier").toLowerCase();
+
+          // Save user info and role to localStorage
+          localStorage.setItem("user", JSON.stringify(user));
+          localStorage.setItem("userRole", role);
+
+          // Redirect based on role
+          if (role === "admin") {
+            navigate("/home");
+          } else {
+            navigate("/products");
+          }
         }
       } else {
-        // 3. Handle Signup
         const res = await fetch(`${apiurl}/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -69,7 +70,7 @@ export default function AuthPage() {
         }
 
         message.success("Signup successful! Please log in.");
-        setMode("login"); // Switch to login view after successful signup
+        setMode("login");
       }
     } catch (err) {
       message.error(err.message || "An error occurred during authentication");
@@ -79,156 +80,131 @@ export default function AuthPage() {
   };
 
   return (
-  <div style={styles.page}>
-    <div style={styles.card}>
-      {/* ---------- Brand panel ---------- */}
-      <div style={styles.brandPanel}>
-        <div style={styles.brandMark}>
-          <ShopOutlined style={{ fontSize: 22, color: "#fff" }} />
-        </div>
-        <Title
-          level={3}
-          style={{ color: "#fff", marginTop: 20, marginBottom: 6 }}
-        >
-          My<span style={{ color: "#BBF7D0" }}>POS</span>
-        </Title>
-        <Text
-          style={{
-            color: "rgba(255,255,255,0.75)",
-            maxWidth: 260,
-            display: "block",
-          }}
-        >
-          Run your whole store from one place — sales, stock, staff and
-          payments, all in sync.
-        </Text>
-
-        <div style={styles.brandStats}>
-          {[
-            ["Products tracked", "in real time"],
-            ["Sales & payments", "recorded instantly"],
-            ["Staff roles", "kept in check"],
-          ].map(([a, b]) => (
-            <div key={a} style={styles.brandStatRow}>
-              <span style={styles.brandDot} />
-              <div>
-                <div style={{ color: "#fff", fontWeight: 600, fontSize: 13 }}>
-                  {a}
-                </div>
-                <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}>
-                  {b}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ---------- Form panel ---------- */}
-      <div style={styles.formPanel}>
-        <div style={{ maxWidth: 340, margin: "0 auto", width: "100%" }}>
-          <Title level={3} style={{ marginBottom: 4 }}>
-            {mode === "login" ? "Welcome back" : "Create your account"}
+    <div style={styles.page}>
+      <div style={styles.card}>
+        {/* ---------- Brand panel ---------- */}
+        <div style={styles.brandPanel}>
+          <div style={styles.brandMark}>
+            <ShopOutlined style={{ fontSize: 22, color: "#fff" }} />
+          </div>
+          <Title
+            level={3}
+            style={{ color: "#fff", marginTop: 20, marginBottom: 6 }}
+          >
+            My<span style={{ color: "#BBF7D0" }}>POS</span>
           </Title>
-          <Text type="secondary">
-            {mode === "login"
-              ? "Sign in to your ItemPOS dashboard"
-              : "Set up ItemPOS for your store in a minute"}
+          <Text
+            style={{
+              color: "rgba(255,255,255,0.75)",
+              maxWidth: 260,
+              display: "block",
+            }}
+          >
+            Run your whole store from one place — sales, stock, staff and
+            payments, all in sync.
           </Text>
 
-          {/* mode switch */}
-          <div style={styles.switch}>
-            <button
-              type="button"
-              onClick={() => switchMode("login")}
-              style={{
-                ...styles.switchBtn,
-                ...(mode === "login" ? styles.switchBtnActive : {}),
-              }}
-            >
-              Log in
-            </button>
-            <button
-              type="button"
-              onClick={() => switchMode("signup")}
-              style={{
-                ...styles.switchBtn,
-                ...(mode === "signup" ? styles.switchBtnActive : {}),
-              }}
-            >
-              Sign up
-            </button>
+          <div style={styles.brandStats}>
+            {[
+              ["Products tracked", "in real time"],
+              ["Sales & payments", "recorded instantly"],
+              ["Staff roles", "kept in check"],
+            ].map(([a, b]) => (
+              <div key={a} style={styles.brandStatRow}>
+                <span style={styles.brandDot} />
+                <div>
+                  <div style={{ color: "#fff", fontWeight: 600, fontSize: 13 }}>
+                    {a}
+                  </div>
+                  <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}>
+                    {b}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
+        </div>
 
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            style={{ marginTop: 20 }}
-            requiredMark={false}
-          >
-            {mode === "signup" && (
+        {/* ---------- Form panel ---------- */}
+        <div style={styles.formPanel}>
+          <div style={{ maxWidth: 340, margin: "0 auto", width: "100%" }}>
+            <Title level={3} style={{ marginBottom: 4 }}>
+              {mode === "login" ? "Welcome back" : "Create your account"}
+            </Title>
+            <Text type="secondary">
+              {mode === "login"
+                ? "Sign in to your ItemPOS dashboard"
+                : "Set up ItemPOS for your store in a minute"}
+            </Text>
+
+            {/* mode switch */}
+            <div style={styles.switch}>
+              <button
+                type="button"
+                onClick={() => switchMode("login")}
+                style={{
+                  ...styles.switchBtn,
+                  ...(mode === "login" ? styles.switchBtnActive : {}),
+                }}
+              >
+                Log in
+              </button>
+              <button
+                type="button"
+                onClick={() => switchMode("signup")}
+                style={{
+                  ...styles.switchBtn,
+                  ...(mode === "signup" ? styles.switchBtnActive : {}),
+                }}
+              >
+                Sign up
+              </button>
+            </div>
+
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleSubmit}
+              style={{ marginTop: 20 }}
+              requiredMark={false}
+            >
+              {mode === "signup" && (
+                <Form.Item
+                  name="name"
+                  label="Full name"
+                  rules={[{ required: true, message: "Please enter your name" }]}
+                >
+                  <Input
+                    prefix={<UserOutlined style={{ color: "#9CA3AF" }} />}
+                    placeholder="Sokha Ry"
+                    size="large"
+                  />
+                </Form.Item>
+              )}
+
               <Form.Item
-                name="name"
-                label="Full name"
-                rules={[{ required: true, message: "Please enter your name" }]}
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Please enter your email" },
+                  { type: "email", message: "Enter a valid email" },
+                ]}
               >
                 <Input
-                  prefix={<UserOutlined style={{ color: "#9CA3AF" }} />}
-                  placeholder="Sokha Ry"
+                  prefix={<MailOutlined style={{ color: "#9CA3AF" }} />}
+                  placeholder="you@store.com"
                   size="large"
                 />
               </Form.Item>
-            )}
 
-            <Form.Item
-              name="email"
-              label="Email"
-              rules={[
-                { required: true, message: "Please enter your email" },
-                { type: "email", message: "Enter a valid email" },
-              ]}
-            >
-              <Input
-                prefix={<MailOutlined style={{ color: "#9CA3AF" }} />}
-                placeholder="you@store.com"
-                size="large"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="password"
-              label="Password"
-              rules={[
-                { required: true, message: "Please enter your password" },
-                ...(mode === "signup"
-                  ? [{ min: 8, message: "Use at least 8 characters" }]
-                  : []),
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined style={{ color: "#9CA3AF" }} />}
-                placeholder="••••••••"
-                size="large"
-              />
-            </Form.Item>
-
-            {mode === "signup" && (
               <Form.Item
-                name="confirmPassword"
-                label="Confirm password"
-                dependencies={["password"]}
+                name="password"
+                label="Password"
                 rules={[
-                  { required: true, message: "Please confirm your password" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue("password") === value)
-                        return Promise.resolve();
-                      return Promise.reject(
-                        new Error("Passwords do not match"),
-                      );
-                    },
-                  }),
+                  { required: true, message: "Please enter your password" },
+                  ...(mode === "signup"
+                    ? [{ min: 8, message: "Use at least 8 characters" }]
+                    : []),
                 ]}
               >
                 <Input.Password
@@ -237,88 +213,112 @@ export default function AuthPage() {
                   size="large"
                 />
               </Form.Item>
-            )}
 
-            {mode === "login" ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: 16,
-                  marginTop: -8,
-                }}
-              >
-                <Form.Item name="remember" valuePropName="checked" noStyle>
-                  <Checkbox>Remember me</Checkbox>
+              {mode === "signup" && (
+                <Form.Item
+                  name="confirmPassword"
+                  label="Confirm password"
+                  dependencies={["password"]}
+                  rules={[
+                    { required: true, message: "Please confirm your password" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue("password") === value)
+                          return Promise.resolve();
+                        return Promise.reject(
+                          new Error("Passwords do not match"),
+                        );
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined style={{ color: "#9CA3AF" }} />}
+                    placeholder="••••••••"
+                    size="large"
+                  />
                 </Form.Item>
-                <Link href="#" style={{ fontSize: 13 }}>
-                  Forgot password?
-                </Link>
-              </div>
-            ) : (
-              <Form.Item
-                name="agree"
-                valuePropName="checked"
-                rules={[
-                  {
-                    validator: (_, checked) =>
-                      checked
-                        ? Promise.resolve()
-                        : Promise.reject(
-                            new Error("Please accept the terms to continue"),
-                          ),
-                  },
-                ]}
-              >
-                <Checkbox>
-                  I agree to the <Link href="#">Terms</Link> and{" "}
-                  <Link href="#">Privacy Policy</Link>
-                </Checkbox>
+              )}
+
+              {mode === "login" ? (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 16,
+                    marginTop: -8,
+                  }}
+                >
+                  <Form.Item name="remember" valuePropName="checked" noStyle>
+                    <Checkbox>Remember me</Checkbox>
+                  </Form.Item>
+                  <Link href="#" style={{ fontSize: 13 }}>
+                    Forgot password?
+                  </Link>
+                </div>
+              ) : (
+                <Form.Item
+                  name="agree"
+                  valuePropName="checked"
+                  rules={[
+                    {
+                      validator: (_, checked) =>
+                        checked
+                          ? Promise.resolve()
+                          : Promise.reject(
+                              new Error("Please accept the terms to continue"),
+                            ),
+                    },
+                  ]}
+                >
+                  <Checkbox>
+                    I agree to the <Link href="#">Terms</Link> and{" "}
+                    <Link href="#">Privacy Policy</Link>
+                  </Checkbox>
+                </Form.Item>
+              )}
+
+              <Form.Item style={{ marginBottom: 12 }}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  size="large"
+                  loading={loading}
+                  block
+                  icon={<ArrowRightOutlined />}
+                  style={{
+                    background: "#22C55E",
+                    borderColor: "#22C55E",
+                    fontWeight: 600,
+                  }}
+                >
+                  {mode === "login" ? "Log in" : "Create account"}
+                </Button>
               </Form.Item>
-            )}
+            </Form>
 
-            <Form.Item style={{ marginBottom: 12 }}>
-              <Button
-                type="primary"
-                htmlType="submit"
-                size="large"
-                loading={loading}
-                block
-                icon={<ArrowRightOutlined />}
-                iconPlacement="end"
-                style={{
-                  background: "#22C55E",
-                  borderColor: "#22C55E",
-                  fontWeight: 600,
-                }}
-              >
-                {mode === "login" ? "Log in" : "Create account"}
-              </Button>
-            </Form.Item>
-          </Form>
+            <Divider plain style={{ fontSize: 12, color: "#9CA3AF" }}>
+              or
+            </Divider>
 
-          <Divider plain style={{ fontSize: 12, color: "#9CA3AF" }}>
-            or
-          </Divider>
-
-          <Text style={{ display: "block", textAlign: "center", fontSize: 13 }}>
-            {mode === "login" ? (
-              <>
-                No account yet?{" "}
-                <Link onClick={() => switchMode("signup")}>Create one</Link>
-              </>
-            ) : (
-              <>
-                Already have an account?{" "}
-                <Link onClick={() => switchMode("login")}>Log in</Link>
-              </>
-            )}
-          </Text>
+            <Text style={{ display: "block", textAlign: "center", fontSize: 13 }}>
+              {mode === "login" ? (
+                <>
+                  No account yet?{" "}
+                  <Link onClick={() => switchMode("signup")}>Create one</Link>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <Link onClick={() => switchMode("login")}>Log in</Link>
+                </>
+              )}
+            </Text>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 }
 
 const styles = {
