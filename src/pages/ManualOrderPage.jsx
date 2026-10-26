@@ -25,6 +25,7 @@ import {
 } from '@ant-design/icons'
 import ManualOrderCard from '../components/ManualOrderCard.jsx'
 import { getProducts, getCategories } from '../services/productapi.js'
+import { createOrder, getOrders } from '../services/orderapi.js'
 
 const { Title, Text } = Typography
 
@@ -53,13 +54,22 @@ function ManualOrderPage() {
   const [completedOrders, setCompletedOrders] = useState([])
   const [processingPayment, setProcessingPayment] = useState(false)
 
-  // Load Categories & Products
+  // Load Categories & Initial Orders
   const loadCategories = async () => {
     try {
       const data = await getCategories()
       setCategories(data)
     } catch (error) {
       console.error('Failed to load categories:', error)
+    }
+  }
+
+  const loadInitialOrders = async () => {
+    try {
+      const { orders } = await getOrders({ page: 1, perPage: 20 })
+      setCompletedOrders(orders)
+    } catch (error) {
+      console.error('Failed to load initial order history:', error)
     }
   }
 
@@ -79,6 +89,7 @@ function ManualOrderPage() {
 
   useEffect(() => {
     loadCategories()
+    loadInitialOrders()
   }, [])
 
   useEffect(() => {
@@ -140,38 +151,40 @@ function ManualOrderPage() {
   const taxAmount = subtotal * taxRate
   const totalAmount = Math.max(0, subtotal + taxAmount - Number(discount || 0))
 
-  // Complete Order / Payment Submission
-  const handleCompleteOrder = () => {
+  // Complete Order / Payment Submission to Backend API
+  const handleCompleteOrder = async () => {
     if (cart.length === 0) return
 
     setProcessingPayment(true)
-    setTimeout(() => {
-      const newOrder = {
-        id: Date.now(),
-        invoiceNo: `INV-${Math.floor(100000 + Math.random() * 900000)}`,
-        customer: customerName || 'Walk-in',
-        cashierName: 'Cashier #1',
+    try {
+      const payload = {
+        cashier_id: 1, // Pass active cashier ID
+        customer_id: 1, // Pass target customer ID
+        invoice_no: `INV-${Math.floor(100000 + Math.random() * 900000)}`,
+        tax: Number(taxAmount.toFixed(2)),
         status: 'Completed',
         items: cart.map((item) => ({
-          id: item.id,
-          productName: item.name,
+          product_id: item.id,
           quantity: item.quantity,
-          unitPrice: item.price,
+          unit_price: item.price,
+          discount: 0,
         })),
-        discount: Number(discount),
-        subtotal,
-        total: totalAmount,
-        createdAt: new Date().toISOString(),
       }
 
-      setCompletedOrders([newOrder, ...completedOrders])
-      message.success(`Order ${newOrder.invoiceNo} completed successfully!`)
+      const newOrder = await createOrder(payload)
+
+      setCompletedOrders((prev) => [newOrder, ...prev])
+      message.success(`Order ${newOrder.invoiceNo} saved successfully!`)
+      
       setCart([])
       setDiscount(0)
       setCustomerName('Walk-in')
-      setProcessingPayment(false)
       setIsCheckoutOpen(false)
-    }, 800)
+    } catch (error) {
+      message.error(error.message || 'Failed to complete order')
+    } finally {
+      setProcessingPayment(false)
+    }
   }
 
   const filteredProducts = products.filter((item) => {
@@ -341,7 +354,7 @@ function ManualOrderPage() {
 
             <Divider style={{ margin: '12px 0' }} />
 
-            {/* Cart Items List using ManualOrderCard without +, -, or bin icons */}
+            {/* Cart Items List */}
             <div style={{ maxHeight: '420px', overflowY: 'auto', paddingRight: 4 }}>
               {cart.length === 0 ? (
                 <Empty description="No products selected" style={{ margin: '40px 0' }} />
@@ -508,7 +521,7 @@ function ManualOrderPage() {
                     <Text strong>{ord.invoiceNo}</Text>
                     <Text type="success">${ord.total.toFixed(2)}</Text>
                   </Flex>
-                  <Text type="secondary">Customer: {ord.customer}</Text>
+                  <Text type="secondary">Customer: {ord.customerName || ord.customer || 'Walk-in'}</Text>
                 </Card>
               </Col>
             ))}

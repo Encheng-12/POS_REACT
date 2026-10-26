@@ -35,7 +35,7 @@ export const calculateOrderTotals = (items = [], taxRate = 0) => {
     subtotal,
     discount,
     tax,
-    total: Math.max(0, total), // Ensure total doesn't go below zero
+    total: Math.max(0, total),
   }
 }
 
@@ -81,7 +81,6 @@ export const getOrderProducts = async ({ page = 1, perPage = 100, orderId = null
     per_page: perPage.toString(),
   })
 
-  // Append order_id query param so Laravel filters by this specific order
   if (orderId) {
     params.append('order_id', orderId.toString())
   }
@@ -94,7 +93,6 @@ export const getOrderProducts = async ({ page = 1, perPage = 100, orderId = null
 
   const result = await response.json()
 
-  // Filter client-side as a backup safeguard if backend returns all items
   const rawItems = result.data || []
   const filteredItems = orderId
     ? rawItems.filter((item) => Number(item.order_id) === Number(orderId))
@@ -184,4 +182,20 @@ export const getOrders = async ({ page = 1, perPage = 10, search = '', status = 
       total: result.total || 0,
     },
   }
+}
+
+export const createOrder = async (orderData) => {
+  const response = await fetch(ORDERS_URL, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(orderData),
+  })
+
+  const result = await response.json()
+
+  if (!response.ok) {
+    throw new Error(result.message || 'Failed to create order')
+  }
+
+  return mapOrderData(result)
 }
