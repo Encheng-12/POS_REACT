@@ -160,7 +160,6 @@ function ManualOrderPage() {
       const payload = {
         cashier_id: 1, // Pass active cashier ID
         customer_id: 1, // Pass target customer ID
-        invoice_no: `INV-${Math.floor(100000 + Math.random() * 900000)}`,
         tax: Number(taxAmount.toFixed(2)),
         status: 'Completed',
         items: cart.map((item) => ({
