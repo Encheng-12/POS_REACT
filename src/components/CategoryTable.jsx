@@ -279,6 +279,7 @@ function CategoryTable() {
         onCancel={closeForm}
         onOk={handleSave}
         okText={editingRecord ? 'Save changes' : 'Create category'}
+        okButtonProps={{ style: { backgroundColor: '#059669', borderColor: '#059669' } }}
         confirmLoading={saving}
         destroyOnHidden
       >

@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Form, Input, Button, Checkbox, Typography, App, Divider } from "antd";
+import { Form, Input, Button, Checkbox, Typography, App } from "antd";
 import {
   MailOutlined,
   LockOutlined,
-  UserOutlined,
   ShopOutlined,
   ArrowRightOutlined,
 } from "@ant-design/icons";
@@ -11,66 +10,39 @@ import { login } from "../services/login.js";
 import { useNavigate } from "react-router";
 
 const { Title, Text, Link } = Typography;
-const apiurl = import.meta.env.VITE_API_URL;
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const { message } = App.useApp();
-  const [mode, setMode] = useState("login");
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
-
-  const switchMode = (next) => {
-    setMode(next);
-    form.resetFields();
-  };
 
   const handleSubmit = async (values) => {
     setLoading(true);
 
     try {
-      if (mode === "login") {
-        const res = await login({
-          email: values.email,
-          password: values.password,
-        });
+      const res = await login({
+        email: values.email,
+        password: values.password,
+      });
 
-        if (res) {
-          message.success("Login successful!");
+      if (res) {
+        message.success("Login successful!");
 
-          // Extract user and role from response
-          const user = res.user || res.data || res;
-          const role = (user.role || res.role || "cashier").toLowerCase();
+        // Extract user and role from response
+        const user = res.user || res.data || res;
+        const role = (user.role || res.role || "cashier").toLowerCase();
 
-          // Save user info and role to localStorage
-          localStorage.setItem("user", JSON.stringify(user));
-          localStorage.setItem("userRole", role);
+        // Save user info and role to localStorage
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("userRole", role);
 
-          // Redirect based on role
-          if (role === "admin") {
-            navigate("/home");
-          } else {
-            navigate("/products");
-          }
+        // Redirect based on role
+        if (role === "admin") {
+          navigate("/home");
+        } else {
+          navigate("/products");
         }
-      } else {
-        const res = await fetch(`${apiurl}/signup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: values.name,
-            email: values.email,
-            password: values.password,
-          }),
-        });
-
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({}));
-          throw new Error(errorData.message || "Signup failed");
-        }
-
-        message.success("Signup successful! Please log in.");
-        setMode("login");
       }
     } catch (err) {
       message.error(err.message || "An error occurred during authentication");
@@ -129,37 +101,11 @@ export default function AuthPage() {
         <div style={styles.formPanel}>
           <div style={{ maxWidth: 340, margin: "0 auto", width: "100%" }}>
             <Title level={3} style={{ marginBottom: 4 }}>
-              {mode === "login" ? "Welcome back" : "Create your account"}
+              Welcome back
             </Title>
             <Text type="secondary">
-              {mode === "login"
-                ? "Sign in to your ItemPOS dashboard"
-                : "Set up ItemPOS for your store in a minute"}
+              Sign in to your ItemPOS dashboard
             </Text>
-
-            {/* mode switch */}
-            <div style={styles.switch}>
-              <button
-                type="button"
-                onClick={() => switchMode("login")}
-                style={{
-                  ...styles.switchBtn,
-                  ...(mode === "login" ? styles.switchBtnActive : {}),
-                }}
-              >
-                Log in
-              </button>
-              <button
-                type="button"
-                onClick={() => switchMode("signup")}
-                style={{
-                  ...styles.switchBtn,
-                  ...(mode === "signup" ? styles.switchBtnActive : {}),
-                }}
-              >
-                Sign up
-              </button>
-            </div>
 
             <Form
               form={form}
@@ -168,20 +114,6 @@ export default function AuthPage() {
               style={{ marginTop: 20 }}
               requiredMark={false}
             >
-              {mode === "signup" && (
-                <Form.Item
-                  name="name"
-                  label="Full name"
-                  rules={[{ required: true, message: "Please enter your name" }]}
-                >
-                  <Input
-                    prefix={<UserOutlined style={{ color: "#9CA3AF" }} />}
-                    placeholder="Sokha Ry"
-                    size="large"
-                  />
-                </Form.Item>
-              )}
-
               <Form.Item
                 name="email"
                 label="Email"
@@ -202,9 +134,6 @@ export default function AuthPage() {
                 label="Password"
                 rules={[
                   { required: true, message: "Please enter your password" },
-                  ...(mode === "signup"
-                    ? [{ min: 8, message: "Use at least 8 characters" }]
-                    : []),
                 ]}
               >
                 <Input.Password
@@ -214,69 +143,21 @@ export default function AuthPage() {
                 />
               </Form.Item>
 
-              {mode === "signup" && (
-                <Form.Item
-                  name="confirmPassword"
-                  label="Confirm password"
-                  dependencies={["password"]}
-                  rules={[
-                    { required: true, message: "Please confirm your password" },
-                    ({ getFieldValue }) => ({
-                      validator(_, value) {
-                        if (!value || getFieldValue("password") === value)
-                          return Promise.resolve();
-                        return Promise.reject(
-                          new Error("Passwords do not match"),
-                        );
-                      },
-                    }),
-                  ]}
-                >
-                  <Input.Password
-                    prefix={<LockOutlined style={{ color: "#9CA3AF" }} />}
-                    placeholder="••••••••"
-                    size="large"
-                  />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 16,
+                  marginTop: -8,
+                }}
+              >
+                <Form.Item name="remember" valuePropName="checked" noStyle>
+                  <Checkbox>Remember me</Checkbox>
                 </Form.Item>
-              )}
-
-              {mode === "login" ? (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: 16,
-                    marginTop: -8,
-                  }}
-                >
-                  <Form.Item name="remember" valuePropName="checked" noStyle>
-                    <Checkbox>Remember me</Checkbox>
-                  </Form.Item>
-                  <Link href="#" style={{ fontSize: 13 }}>
-                    Forgot password?
-                  </Link>
-                </div>
-              ) : (
-                <Form.Item
-                  name="agree"
-                  valuePropName="checked"
-                  rules={[
-                    {
-                      validator: (_, checked) =>
-                        checked
-                          ? Promise.resolve()
-                          : Promise.reject(
-                              new Error("Please accept the terms to continue"),
-                            ),
-                    },
-                  ]}
-                >
-                  <Checkbox>
-                    I agree to the <Link href="#">Terms</Link> and{" "}
-                    <Link href="#">Privacy Policy</Link>
-                  </Checkbox>
-                </Form.Item>
-              )}
+                <Link href="#" style={{ fontSize: 13 }}>
+                  Forgot password?
+                </Link>
+              </div>
 
               <Form.Item style={{ marginBottom: 12 }}>
                 <Button
@@ -292,28 +173,11 @@ export default function AuthPage() {
                     fontWeight: 600,
                   }}
                 >
-                  {mode === "login" ? "Log in" : "Create account"}
+                  Log in
                 </Button>
               </Form.Item>
             </Form>
 
-            <Divider plain style={{ fontSize: 12, color: "#9CA3AF" }}>
-              or
-            </Divider>
-
-            <Text style={{ display: "block", textAlign: "center", fontSize: 13 }}>
-              {mode === "login" ? (
-                <>
-                  No account yet?{" "}
-                  <Link onClick={() => switchMode("signup")}>Create one</Link>
-                </>
-              ) : (
-                <>
-                  Already have an account?{" "}
-                  <Link onClick={() => switchMode("login")}>Log in</Link>
-                </>
-              )}
-            </Text>
           </div>
         </div>
       </div>
