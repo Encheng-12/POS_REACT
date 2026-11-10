@@ -41,9 +41,9 @@ function ManualOrderPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Cart & Order State
+  // Cart & Order State (Defaults customerName to 'MOC')
   const [cart, setCart] = useState([])
-  const [customerName, setCustomerName] = useState('Walk-in')
+  const [customerName, setCustomerName] = useState('MOC')
   const [discount, setDiscount] = useState(0)
   const [taxRate] = useState(0.08) // 8% standard tax
   const [paymentMethod, setPaymentMethod] = useState('cash')
@@ -159,9 +159,10 @@ function ManualOrderPage() {
     try {
       const payload = {
         cashier_id: 1, // Pass active cashier ID
-        customer_id: 1, // Pass target customer ID
+        customer_name: customerName || 'MOC', // Pass custom customer name, defaulting to MOC
         tax: Number(taxAmount.toFixed(2)),
         status: 'Completed',
+        payment_method: paymentMethod,
         items: cart.map((item) => ({
           product_id: item.id,
           quantity: item.quantity,
@@ -173,11 +174,11 @@ function ManualOrderPage() {
       const newOrder = await createOrder(payload)
 
       setCompletedOrders((prev) => [newOrder, ...prev])
-      message.success(`Order ${newOrder.invoiceNo} saved successfully!`)
+      message.success(`Order ${newOrder.invoiceNo || 'INV'} saved successfully!`)
       
       setCart([])
       setDiscount(0)
-      setCustomerName('Walk-in')
+      setCustomerName('MOC')
       setIsCheckoutOpen(false)
     } catch (error) {
       message.error(error.message || 'Failed to complete order')
@@ -279,7 +280,7 @@ function ManualOrderPage() {
             </div>
           </Card>
 
-          {/* Product Grid (With controls) */}
+          {/* Product Grid */}
           <Spin spinning={loading}>
             <Row gutter={[16, 16]}>
               {filteredProducts.map((product) => {
@@ -343,13 +344,18 @@ function ManualOrderPage() {
               )}
             </Flex>
 
-            {/* Customer Name Input */}
-            <Input
-              placeholder="Customer Name (e.g. Walk-in)"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              style={{ marginBottom: 16, borderRadius: 6 }}
-            />
+            {/* Customer Name Input (Defaults to MOC) */}
+            <div style={{ marginBottom: 16 }}>
+              <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>
+                Customer Name
+              </Text>
+              <Input
+                placeholder="Customer Name (Default: MOC)"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                style={{ borderRadius: 6 }}
+              />
+            </div>
 
             <Divider style={{ margin: '12px 0' }} />
 
@@ -438,7 +444,7 @@ function ManualOrderPage() {
           <div>
             <Text type="secondary">Customer:</Text>
             <Title level={5} style={{ margin: 0 }}>
-              {customerName || 'Walk-in'}
+              {customerName || 'MOC'}
             </Title>
           </div>
 
@@ -517,10 +523,10 @@ function ManualOrderPage() {
               <Col xs={24} sm={12} key={ord.id}>
                 <Card size="small" style={{ borderRadius: 8 }}>
                   <Flex justify="space-between">
-                    <Text strong>{ord.invoiceNo}</Text>
-                    <Text type="success">${ord.total.toFixed(2)}</Text>
+                    <Text strong>{ord.invoice_no || ord.invoiceNo}</Text>
+                    <Text type="success">${Number(ord.total || 0).toFixed(2)}</Text>
                   </Flex>
-                  <Text type="secondary">Customer: {ord.customerName || ord.customer || 'Walk-in'}</Text>
+                  <Text type="secondary">Customer: {ord.customer_name || ord.customerName || 'MOC'}</Text>
                 </Card>
               </Col>
             ))}
