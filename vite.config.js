@@ -6,7 +6,7 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    allowedHosts: ['aws-pos.chharngchhit.site'],
+    allowedHosts: ['aws-pos.encheng.store'],
   },
   resolve: {
     alias: {
