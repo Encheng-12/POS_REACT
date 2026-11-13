@@ -41,9 +41,8 @@ function ManualOrderPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Cart & Order State (Defaults customerName to 'MOC')
+  // Cart & Order State
   const [cart, setCart] = useState([])
-  const [customerName, setCustomerName] = useState('MOC')
   const [discount, setDiscount] = useState(0)
   const [taxRate] = useState(0.08) // 8% standard tax
   const [paymentMethod, setPaymentMethod] = useState('cash')
@@ -159,7 +158,6 @@ function ManualOrderPage() {
     try {
       const payload = {
         cashier_id: 1, // Pass active cashier ID
-        customer_name: customerName || 'MOC', // Pass custom customer name, defaulting to MOC
         tax: Number(taxAmount.toFixed(2)),
         status: 'Completed',
         payment_method: paymentMethod,
@@ -178,7 +176,6 @@ function ManualOrderPage() {
       
       setCart([])
       setDiscount(0)
-      setCustomerName('MOC')
       setIsCheckoutOpen(false)
     } catch (error) {
       message.error(error.message || 'Failed to complete order')
@@ -344,17 +341,12 @@ function ManualOrderPage() {
               )}
             </Flex>
 
-            {/* Customer Name Input (Defaults to MOC) */}
+            {/* Manual orders use the MOC walk-in customer. */}
             <div style={{ marginBottom: 16 }}>
               <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>
-                Customer Name
+                Customer
               </Text>
-              <Input
-                placeholder="Customer Name (Default: MOC)"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                style={{ borderRadius: 6 }}
-              />
+              <Text>MOC</Text>
             </div>
 
             <Divider style={{ margin: '12px 0' }} />
@@ -444,7 +436,7 @@ function ManualOrderPage() {
           <div>
             <Text type="secondary">Customer:</Text>
             <Title level={5} style={{ margin: 0 }}>
-              {customerName || 'MOC'}
+              MOC
             </Title>
           </div>
 
