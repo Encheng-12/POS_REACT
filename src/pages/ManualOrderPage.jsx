@@ -430,7 +430,7 @@ function ManualOrderPage() {
         open={isCheckoutOpen}
         onCancel={() => setIsCheckoutOpen(false)}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
       >
         <Flex vertical gap="middle" style={{ marginTop: 16 }}>
           <div>

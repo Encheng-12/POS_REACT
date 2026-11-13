@@ -77,13 +77,15 @@ function Navigation({ isCollapsed }) {
     return items
       .filter((item) => isAdmin || !item.adminOnly)
       .map((item) => {
+        const { adminOnly: _adminOnly, ...menuItem } = item;
+
         if (item.children) {
           const filteredChildren = filterMenuItems(item.children);
           return filteredChildren.length > 0
-            ? { ...item, children: filteredChildren }
+            ? { ...menuItem, children: filteredChildren }
             : null;
         }
-        return item;
+        return menuItem;
       })
       .filter(Boolean);
   };
