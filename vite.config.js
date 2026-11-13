@@ -1,11 +1,17 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite' // 1. Import Tailwind
+import tailwindcss from '@tailwindcss/vite'
+import { fileURLToPath, URL } from 'node:url'
 
-// https://vite.dev
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(), // 2. Add it to the plugins array
-  ],
+  plugins: [react(), tailwindcss()],
+  server: {
+    allowedHosts: ['aws-pos.chharngchhit.site'],
+  },
+  resolve: {
+    alias: {
+      './pages/resources': fileURLToPath(new URL('./src/pages', import.meta.url)),
+      '../pages/resources': fileURLToPath(new URL('./src/pages', import.meta.url)),
+    },
+  },
 })
